@@ -20,6 +20,7 @@ const TABLES: Record<string, string> = {
   deployments: "created_at",
   checklist_templates: "created_at",
   costs: "created_at",
+  retrospectives: "created_at",
 };
 
 export async function GET() {

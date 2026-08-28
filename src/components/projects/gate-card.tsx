@@ -28,9 +28,13 @@ export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClo
     firstTasks: "",
     milestoneTitle: "",
     milestoneDue: "",
+    good: "",
+    bad: "",
+    learned: "",
+    neverAgain: "",
   });
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const set = (key: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setFields({ ...fields, [key]: e.target.value });
@@ -56,16 +60,40 @@ export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClo
   const submit = async (withFields: boolean) => {
     if (busy) return;
     setBusy(true);
-    setError(false);
+    setError(null);
     let ok = true;
 
     if (to) {
+      // 채운 문항만 보낸다 — 빈 값까지 보내면 재종료 시 기존 회고 답변이 null로 덮인다
+      const retroEntries =
+        gate === "G4" && withFields
+          ? Object.entries({
+              good: fields.good,
+              bad: fields.bad,
+              learned: fields.learned,
+              neverAgain: fields.neverAgain,
+            }).filter(([, v]) => v.trim())
+          : [];
       const res = await fetch(`/api/projects/${project.id}/transition`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to, patch: withFields ? buildPatch() : {} }),
+        body: JSON.stringify({
+          to,
+          patch: withFields && gate !== "G4" ? buildPatch() : {},
+          ...(retroEntries.length > 0 && { retro: Object.fromEntries(retroEntries) }),
+        }),
       }).catch(() => null);
       ok = Boolean(res?.ok);
+      if (ok && res) {
+        const data = (await res.json().catch(() => null)) as { retroSaved?: boolean } | null;
+        if (data?.retroSaved === false) {
+          // 전이는 됐지만 회고가 유실될 판 — 닫지 말고 알려서 회고 탭 재작성으로 유도
+          setBusy(false);
+          setError("전이는 완료됐지만 회고 저장에 실패했습니다 — 회고 탭에서 다시 작성해주세요");
+          router.refresh();
+          return;
+        }
+      }
       // G2: 첫 태스크·마일스톤 초안은 전이 후 이어서 생성
       if (ok && withFields && gate === "G2") {
         const tasks = fields.firstTasks.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 3);
@@ -98,7 +126,7 @@ export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClo
 
     setBusy(false);
     if (!ok) {
-      setError(true);
+      setError("저장하지 못했습니다 — 다시 시도해주세요");
       return;
     }
     onClose();
@@ -121,6 +149,7 @@ export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClo
     G1: "킥오프 — 왜, 누구를 위해, 무엇을",
     G2: "개발 시작 — 저장소·스택·첫 태스크",
     G3: "플랫폼 선정 — 배포 정보",
+    G4: "회고 — 다음 프로젝트를 위한 기록",
   };
 
   return (
@@ -194,7 +223,19 @@ export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClo
           </>
         )}
 
-        {error && <p className="text-[11px] text-muted">저장하지 못했습니다 — 다시 시도해주세요</p>}
+        {gate === "G4" && (
+          <>
+            {input("1. 잘한 것", "good")}
+            {input("2. 아쉬운 것", "bad")}
+            {input("3. 배운 것", "learned")}
+            {input("4. 다음에 안 할 것 ★", "neverAgain")}
+            <p className="text-[11px] text-muted">
+              자동 수치(기간·투입·태스크·배포)는 저장 시점 스냅샷으로 함께 기록됩니다
+            </p>
+          </>
+        )}
+
+        {error && <p className="text-[11px] text-muted">{error}</p>}
 
         <div className="mt-1 flex items-center justify-end gap-2">
           {to && (

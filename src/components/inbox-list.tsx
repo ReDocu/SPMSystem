@@ -66,6 +66,15 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
   const undoQueue = useUndoQueue<InboxItem>();
   const [error, setError] = useState<string | null>(null);
 
+  // router.refresh()가 가져온 서버 데이터로 재동기화 (렌더 중 상태 보정 패턴) —
+  // 북마클릿·다른 탭에서 들어온 캡처가 새로고침 없이 보여야 한다
+  const [prevInitial, setPrevInitial] = useState(initialItems);
+  if (initialItems !== prevInitial) {
+    setPrevInitial(initialItems);
+    setItems(initialItems);
+    setLeavingIds(new Set());
+  }
+
   const removeWithFade = useCallback((id: string) => {
     setLeavingIds((prev) => new Set(prev).add(id));
     setTimeout(() => {

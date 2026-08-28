@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Deployment } from "@/lib/ops/model";
+import { buildReleaseNotes } from "@/lib/ops/release-notes";
 
 // 배포 이력 — 수동 기록 + 체크리스트 스냅샷 (§7). Webhook 반자동은 v0.6
 export function DeploymentsPanel({
@@ -19,6 +20,21 @@ export function DeploymentsPanel({
   const [form, setForm] = useState({ environmentId: "", version: "", changelog: "" });
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [notesOpen, setNotesOpen] = useState(false);
+
+  // 변경사항 누적 → 릴리즈 노트 (§7.1). 클라이언트에서 즉석 생성 — 복사해서 쓰면 된다
+  const releaseNotes = notesOpen
+    ? buildReleaseNotes(
+        deployments.map((d) => ({
+          version: d.version,
+          projectTitle: d.projectTitle ?? "",
+          envName: d.envName ?? "",
+          deployedAt: d.deployedAt,
+          changelog: d.changelog,
+          rolledBack: d.rolledBack,
+        })),
+      )
+    : "";
 
   const submit = async () => {
     if (!form.environmentId || !form.version.trim()) return;
@@ -60,12 +76,31 @@ export function DeploymentsPanel({
 
   return (
     <div className="flex max-w-3xl flex-col gap-3">
-      <button
-        onClick={() => setOpen(!open)}
-        className="self-start rounded-md border border-ink px-3 py-1.5 text-xs font-medium hover:bg-surface-2"
-      >
-        + 배포 기록
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setOpen(!open)}
+          className="rounded-md border border-ink px-3 py-1.5 text-xs font-medium hover:bg-surface-2"
+        >
+          + 배포 기록
+        </button>
+        {deployments.length > 0 && (
+          <button
+            onClick={() => setNotesOpen(!notesOpen)}
+            className="rounded-md border border-line px-3 py-1.5 text-xs text-muted hover:text-ink"
+          >
+            릴리즈 노트 {notesOpen ? "닫기" : "생성"}
+          </button>
+        )}
+      </div>
+
+      {notesOpen && (
+        <textarea
+          readOnly
+          value={releaseNotes}
+          rows={12}
+          className="resize-y rounded-xl border border-line bg-surface px-3 py-2 font-mono text-[12px] leading-relaxed"
+        />
+      )}
 
       {open && (
         <div className="flex flex-col gap-2 rounded-xl border border-dashed border-line bg-surface p-3">

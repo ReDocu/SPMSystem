@@ -4,6 +4,7 @@ import { isDbConfigured } from "@/lib/db";
 import { isUuid } from "@/lib/ids";
 import {
   getProject,
+  getRetro,
   lifelineData,
   linkedYearGoals,
   listDocuments,
@@ -11,7 +12,9 @@ import {
   listProjectTasks,
   projectTimeSummary,
 } from "@/lib/projects/repo";
+import { RetroTab } from "@/components/projects/retro-tab";
 import { listPlatforms } from "@/lib/ops/repo";
+import { fetchGitHubActivity } from "@/lib/projects/github-activity";
 import { toDateKey } from "@/lib/dates";
 import { ProjectHeader } from "@/components/projects/project-header";
 import { OverviewTab } from "@/components/projects/overview-tab";
@@ -19,11 +22,11 @@ import { KanbanTab } from "@/components/projects/kanban-tab";
 import { DocsTab } from "@/components/projects/docs-tab";
 import { LifelineBar } from "@/components/projects/lifeline-bar";
 
-// 회고 탭은 G4와 함께 v0.6 — 미구현 메뉴는 숨긴다 (ISSUE-11)
 const TABS = [
   { key: "overview", label: "개요" },
   { key: "tasks", label: "태스크" },
   { key: "docs", label: "문서" },
+  { key: "retro", label: "회고" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -45,15 +48,20 @@ export default async function ProjectDetailPage({
   const { tab: rawTab } = await searchParams;
   const tab: TabKey = TABS.some((t) => t.key === rawTab) ? (rawTab as TabKey) : "overview";
 
-  const [milestones, tasks, docs, time, yearGoals, lifeline, platforms] = await Promise.all([
-    listMilestones(id),
-    listProjectTasks(id),
-    tab === "docs" ? listDocuments(id) : Promise.resolve([]),
-    projectTimeSummary(id),
-    linkedYearGoals(id),
-    lifelineData(id).catch(() => ({ events: [], milestones: [], deployments: [] })),
-    listPlatforms().catch(() => []),
-  ]);
+  const [milestones, tasks, docs, time, yearGoals, lifeline, platforms, retro, github] =
+    await Promise.all([
+      listMilestones(id),
+      listProjectTasks(id),
+      tab === "docs" ? listDocuments(id) : Promise.resolve([]),
+      projectTimeSummary(id),
+      linkedYearGoals(id),
+      lifelineData(id).catch(() => ({ events: [], milestones: [], deployments: [] })),
+      listPlatforms().catch(() => []),
+      tab === "retro" ? getRetro(id).catch(() => null) : Promise.resolve(null),
+      tab === "overview"
+        ? fetchGitHubActivity(project.repoUrl).catch(() => null)
+        : Promise.resolve(null),
+    ]);
   const platformOptions = platforms.map((p) => ({ id: p.id, name: p.name }));
 
   return (
@@ -84,10 +92,12 @@ export default async function ProjectDetailPage({
           milestones={milestones}
           yearGoals={yearGoals}
           platforms={platformOptions}
+          github={github}
         />
       )}
       {tab === "tasks" && <KanbanTab projectId={id} tasks={tasks} milestones={milestones} />}
       {tab === "docs" && <DocsTab projectId={id} docs={docs} />}
+      {tab === "retro" && <RetroTab project={project} retro={retro} />}
     </div>
   );
 }

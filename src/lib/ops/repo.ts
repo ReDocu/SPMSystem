@@ -454,30 +454,36 @@ export interface ExpiringItem {
 export async function liveProjectCards(): Promise<LiveProjectCard[]> {
   const userId = await getUserId();
   const pool = getPool();
-  const projects = await pool.query<{ id: string; title: string; color: string | null }>(
-    "select id, title, color from projects where user_id = $1 and status = 'live' order by title",
-    [userId],
-  );
-  const cards: LiveProjectCard[] = [];
-  for (const p of projects.rows) {
-    const envs = await listEnvironments(p.id);
-    const deploy = await pool.query<{ version: string; deployed_at: string }>(
-      `select d.version, to_char(d.deployed_at at time zone 'Asia/Seoul', 'MM/DD') as deployed_at
+  // 프로젝트 수와 무관하게 고정 3쿼리 — 카드마다 왕복하면 대시보드가 N+1로 느려진다
+  const [projects, allEnvs, latestDeploys] = await Promise.all([
+    pool.query<{ id: string; title: string; color: string | null }>(
+      "select id, title, color from projects where user_id = $1 and status = 'live' order by title",
+      [userId],
+    ),
+    listEnvironments(),
+    pool.query<{ project_id: string; version: string; deployed_at: string }>(
+      `select distinct on (e.project_id) e.project_id, d.version,
+         to_char(d.deployed_at at time zone 'Asia/Seoul', 'MM/DD') as deployed_at
        from deployments d join environments e on e.id = d.environment_id
-       where d.user_id = $1 and e.project_id = $2 order by d.deployed_at desc limit 1`,
-      [userId, p.id],
-    );
-    cards.push({
-      projectId: p.id,
-      title: p.title,
-      color: p.color,
-      environments: envs,
-      latestDeploy: deploy.rows[0]
-        ? { version: deploy.rows[0].version, deployedAt: deploy.rows[0].deployed_at }
-        : null,
-    });
+       where d.user_id = $1
+       order by e.project_id, d.deployed_at desc`,
+      [userId],
+    ),
+  ]);
+  const envsByProject = new Map<string, Environment[]>();
+  for (const env of allEnvs) {
+    envsByProject.set(env.projectId, [...(envsByProject.get(env.projectId) ?? []), env]);
   }
-  return cards;
+  const deployByProject = new Map(
+    latestDeploys.rows.map((d) => [d.project_id, { version: d.version, deployedAt: d.deployed_at }]),
+  );
+  return projects.rows.map((p) => ({
+    projectId: p.id,
+    title: p.title,
+    color: p.color,
+    environments: envsByProject.get(p.id) ?? [],
+    latestDeploy: deployByProject.get(p.id) ?? null,
+  }));
 }
 
 /** 만료 임박 D-30 — SSL·도메인·구독 갱신 통합 목록 (§5). */

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { kickoffFill, type Milestone, type Project } from "@/lib/projects/model";
+import type { GitHubActivity } from "@/lib/projects/github-activity";
 import { formatGuessDate } from "@/lib/capture/format";
 import { GateCard } from "@/components/projects/gate-card";
 
@@ -12,6 +13,7 @@ interface OverviewProps {
   milestones: Milestone[];
   yearGoals: { id: string; title: string; status: string; targetYear: number }[];
   platforms?: { id: string; name: string }[];
+  github?: GitHubActivity | null;
 }
 
 const hours = (min: number) => (Number.isInteger(min / 60) ? `${min / 60}h` : `${(min / 60).toFixed(1)}h`);
@@ -24,7 +26,7 @@ const field = (label: string, value: string | null) => (
 );
 
 // 개요 탭 — 게이트에서 채운 것들이 사는 곳 (§5-2)
-export function OverviewTab({ project, time, milestones, yearGoals, platforms = [] }: OverviewProps) {
+export function OverviewTab({ project, time, milestones, yearGoals, platforms = [], github = null }: OverviewProps) {
   const [editGate, setEditGate] = useState<"G1" | "G3" | null>(null);
   const fill = kickoffFill(project);
   // live 이후엔 G3 필드(플랫폼·배포 URL)를 나중에 채울 경로가 필요하다 (ISSUE-04의 실제 해결)
@@ -114,6 +116,21 @@ export function OverviewTab({ project, time, milestones, yearGoals, platforms = 
           </p>
         ))}
       </section>
+
+      {github && (
+        <section className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-4 sm:col-span-2">
+          <h2 className="mb-1 text-[13px] font-bold">
+            GitHub <span className="font-normal text-muted">({github.repoLabel} · 열린 이슈 {github.openIssues} · 읽기 전용)</span>
+          </h2>
+          {github.commits.map((c) => (
+            <p key={c.sha} className="flex items-center gap-2 text-xs">
+              <span className="flex-none font-mono text-muted">{c.sha}</span>
+              <span className="min-w-0 flex-1 truncate">{c.message}</span>
+              <span className="flex-none text-muted">{c.date}</span>
+            </p>
+          ))}
+        </section>
+      )}
 
       {editGate && (
         <GateCard

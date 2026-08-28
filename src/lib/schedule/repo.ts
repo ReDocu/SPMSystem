@@ -260,6 +260,39 @@ export async function promoteYearTask(taskId: string): Promise<{ projectId: stri
   return { projectId: project.id };
 }
 
+// ---------- 일일 요약 재료 (기획서 §9.1) ----------
+
+/** 오늘 마감 미완료 태스크 제목 목록. */
+export async function listDueTitles(today: string): Promise<string[]> {
+  const userId = await getUserId();
+  const r = await getPool().query<{ title: string }>(
+    `select title from tasks
+     where user_id = $1 and due_date = $2 and status not in ('done', 'dropped')
+     order by created_at`,
+    [userId, today],
+  );
+  return r.rows.map((row) => row.title);
+}
+
+/** 지난주(월~일, KST) 기록 집계 — 월요일 일일 요약의 주간 3줄 (IMP-02). */
+export async function lastWeekByProject(): Promise<{
+  totalMin: number;
+  byProject: { title: string; min: number }[];
+}> {
+  const userId = await getUserId();
+  const r = await getPool().query<{ title: string | null; min: string }>(
+    `select p.title, sum(l.end_min - l.start_min) as min
+     from time_logs l left join projects p on p.id = l.project_id
+     where l.user_id = $1
+       and (l.date >= (date_trunc('week', now() at time zone 'Asia/Seoul') - interval '7 days')::date)
+       and (l.date < date_trunc('week', now() at time zone 'Asia/Seoul')::date)
+     group by p.title order by min desc`,
+    [userId],
+  );
+  const byProject = r.rows.map((row) => ({ title: row.title ?? "기타", min: Number(row.min) }));
+  return { totalMin: byProject.reduce((sum, p) => sum + p.min, 0), byProject };
+}
+
 // ---------- 런처 일정 타일 (화면명세서 §2 타일별 데이터) ----------
 
 export interface ScheduleTile {

@@ -94,12 +94,42 @@ export const TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
   dropped: ["active"],
 };
 
-// 게이트 이름 (전이 → 게이트). G3 실질 동작·G4 회고는 v0.5/v0.6
-export function gateOf(from: ProjectStatus, to: ProjectStatus): "G1" | "G2" | "G3" | null {
+// 게이트 이름 (전이 → 게이트)
+export function gateOf(from: ProjectStatus, to: ProjectStatus): "G1" | "G2" | "G3" | "G4" | null {
   if (from === "idea" && to === "planning") return "G1";
   if (from === "planning" && to === "active") return "G2";
   if (from === "active" && to === "live") return "G3";
+  if (to === "completed" || to === "dropped") return "G4"; // 폐기도 회고를 거친다 (§1)
   return null;
+}
+
+// ---------- G4 회고 (§5.4) ----------
+
+export interface RetroStats {
+  from: string | null; // started_at
+  to: string; // 작성 시점 종료일
+  days: number;
+  totalMin: number;
+  doneCount: number;
+  droppedCount: number;
+  deployCount: number;
+}
+
+export interface Retrospective {
+  projectId: string;
+  good: string | null;
+  bad: string | null;
+  learned: string | null;
+  neverAgain: string | null; // 가장 중요한 문항
+  stats: RetroStats;
+  updatedAt: string;
+}
+
+export interface RetroFields {
+  good?: string | null;
+  bad?: string | null;
+  learned?: string | null;
+  neverAgain?: string | null;
 }
 
 // 생애 타임라인 상태 구간 색 (§5.5 — 구간 색은 상태별 고정)

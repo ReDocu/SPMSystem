@@ -1,19 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isDbConfigured } from "@/lib/db";
 import { createItem } from "@/lib/inbox/repo";
+import { isAutomationAuthorized } from "@/lib/auth/automation";
 
 const MAX_CAPTURE_LENGTH = 10_000;
 
-/**
- * 북마클릿 수신 (기획서 §4.4 경로 2, 상세기획 ISSUE-01).
- * PIN 세션 쿠키 대신 전용 캡처 토큰으로 검증한다 — proxy 매처에서 제외됨.
- * window.open GET 방식이라 HTTPS 페이지 → http://localhost 혼합 콘텐츠 제한을 피한다.
- */
-function isAuthorized(token: string | null): boolean {
-  const expected = process.env.SPM_CAPTURE_TOKEN;
-  if (expected) return token === expected;
-  return !process.env.SPM_PIN; // 토큰 미설정: PIN 잠금이 없을 때만 개방 (잠금 우회 방지)
-}
+// 북마클릿 수신 (기획서 §4.4 경로 2, ISSUE-01) — 자동화 토큰 인증, proxy 매처 제외.
+// window.open GET 방식이라 HTTPS 페이지 → http://localhost 혼합 콘텐츠 제한을 피한다.
 
 // 팝업 창에서 열리므로 실패도 사람이 읽을 HTML로 답한다 (성공만 자동 닫힘)
 function htmlPage(message: string, autoClose: boolean, status = 200): NextResponse {
@@ -33,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 
   const params = request.nextUrl.searchParams;
-  if (!isAuthorized(params.get("token"))) {
+  if (!isAutomationAuthorized(params.get("token"))) {
     return htmlPage("캡처 토큰이 올바르지 않습니다 — 설정 › 북마클릿을 다시 설치해주세요", false, 401);
   }
   if (!isDbConfigured()) return htmlPage("DB가 설정되지 않았습니다", false, 503);

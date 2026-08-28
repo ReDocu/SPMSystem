@@ -37,6 +37,9 @@ export function AppSidebar({ inboxCount = 0 }: { inboxCount?: number }) {
           </span>
         )}
       </Link>
+      <Link href="/stats" className={itemClass(pathname === "/stats")}>
+        통계
+      </Link>
       <Link href="/settings" className={itemClass(pathname === "/settings")}>
         설정
       </Link>

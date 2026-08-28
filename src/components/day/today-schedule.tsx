@@ -55,8 +55,11 @@ export function TodaySchedule({
       <h2 className="mb-2 text-[13px] font-bold">오늘 일정</h2>
       <ul className="flex flex-col gap-1.5">
         {occurrences.map((occ) => {
+          // 여러 날 일정은 endMin이 다른 날의 벽시계 시각 — 하루짜리에만 시각 판정·복사를 적용
+          const isSingleDay = occ.event.startDate === occ.event.endDate;
           const isPast =
             !occ.event.allDay &&
+            isSingleDay &&
             (date < today || (isToday && nowMin !== null && occ.event.endMin <= nowMin));
           return (
             <li key={`${occ.event.id}-${occ.dayIndex}`} className="flex items-center gap-2 text-xs">

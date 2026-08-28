@@ -1,11 +1,11 @@
 import { BookmarkletGuide } from "@/components/bookmarklet-guide";
+import { DailySummaryTest } from "@/components/daily-summary-test";
 
 // 설정 — JSON export는 v0.1부터 필수 (기획서 §8.2: 탈출 가능 원칙, 백업은 본인 책임)
 export default function SettingsPage() {
   const rows = [
     { label: "잠금", control: "PIN — 환경변수 SPM_PIN으로 설정" },
     { label: "테마", control: "시스템 / 라이트 / 다크" },
-    { label: "알림", control: "Discord Webhook URL" },
   ];
 
   return (
@@ -20,6 +20,13 @@ export default function SettingsPage() {
           <span className="text-muted">{row.control}</span>
         </div>
       ))}
+      <div className="flex items-start gap-4 border-b border-line/50 py-4 text-sm">
+        <span className="w-28 flex-none pt-1 font-bold">알림</span>
+        <DailySummaryTest
+          webhookConfigured={Boolean(process.env.SPM_DISCORD_WEBHOOK)}
+          token={process.env.SPM_CAPTURE_TOKEN ?? null}
+        />
+      </div>
       <div className="flex items-center gap-4 border-b border-line/50 py-4 text-sm">
         <span className="w-28 flex-none font-bold">북마클릿</span>
         <BookmarkletGuide

@@ -9,9 +9,12 @@ import {
   type Project,
   type ProjectDocument,
   type ProjectStatus,
+  type RetroFields,
+  type Retrospective,
+  type RetroStats,
 } from "@/lib/projects/model";
 
-export type { KanbanTask, Milestone, Project, ProjectDocument, ProjectStatus };
+export type { KanbanTask, Milestone, Project, ProjectDocument, ProjectStatus, Retrospective };
 
 const CREATED_ISO = `to_char(created_at at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z'`;
 const PROJECT_FIELDS = `id, title, status, description, purpose, target_user, scope_in, scope_out,
@@ -58,12 +61,15 @@ const toProject = (r: ProjectRow): Project => ({
 export interface ProjectCard extends Project {
   lastActivityAt: string | null;
   weekMin: number;
+  hasRetro: boolean; // 완료·폐기의 "회고 미작성" 배지 재료 (USE-07)
 }
 
 /** 목록 카드 — 최근 활동일 + 이번 주 투입 시간(타임로그, KST) (§4). */
 export async function listProjectCards(): Promise<ProjectCard[]> {
   const userId = await getUserId();
-  const r = await getPool().query<ProjectRow & { last_activity: string | null; week_min: string }>(
+  const r = await getPool().query<
+    ProjectRow & { last_activity: string | null; week_min: string; has_retro: boolean }
+  >(
     `select ${PROJECT_FIELDS},
        greatest(
          (select max(occurred_at) from project_events e where e.project_id = p.id),
@@ -73,7 +79,8 @@ export async function listProjectCards(): Promise<ProjectCard[]> {
        coalesce((select sum(l.end_min - l.start_min) from time_logs l
          where l.project_id = p.id
            and (l.created_at at time zone 'Asia/Seoul')
-             >= date_trunc('week', now() at time zone 'Asia/Seoul')), 0) as week_min
+             >= date_trunc('week', now() at time zone 'Asia/Seoul')), 0) as week_min,
+       exists(select 1 from retrospectives r where r.project_id = p.id) as has_retro
      from projects p where user_id = $1
      order by last_activity desc nulls last, created_at desc`,
     [userId],
@@ -82,6 +89,7 @@ export async function listProjectCards(): Promise<ProjectCard[]> {
     ...toProject(row),
     lastActivityAt: row.last_activity,
     weekMin: Number(row.week_min),
+    hasRetro: row.has_retro,
   }));
 }
 
@@ -491,6 +499,123 @@ export async function restoreDocument(doc: ProjectDocument): Promise<ProjectDocu
     [doc.id, userId, doc.projectId, doc.title, doc.content, doc.templateType, doc.updatedAt],
   );
   return r.rows.length > 0 ? toDoc(r.rows[0]) : doc;
+}
+
+// ---------- G4 회고 (§5.4·§6.3) ----------
+
+interface RetroRow {
+  project_id: string;
+  good: string | null;
+  bad: string | null;
+  learned: string | null;
+  never_again: string | null;
+  stats: RetroStats;
+  updated_at: string;
+}
+
+const RETRO_FIELDS = `project_id, good, bad, learned, never_again, stats,
+  to_char(updated_at at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z' as updated_at`;
+
+const toRetro = (r: RetroRow): Retrospective => ({
+  projectId: r.project_id,
+  good: r.good,
+  bad: r.bad,
+  learned: r.learned,
+  neverAgain: r.never_again,
+  stats: r.stats,
+  updatedAt: r.updated_at,
+});
+
+export async function getRetro(projectId: string): Promise<Retrospective | null> {
+  const userId = await getUserId();
+  const r = await getPool().query<RetroRow>(
+    `select ${RETRO_FIELDS} from retrospectives where user_id = $1 and project_id = $2`,
+    [userId, projectId],
+  );
+  return r.rows.length > 0 ? toRetro(r.rows[0]) : null;
+}
+
+/** 자동 수치 — 기간 · 총 투입 · 완료/드롭 태스크 · 배포 횟수 (§5.4). */
+export async function computeRetroStats(projectId: string): Promise<RetroStats> {
+  const userId = await getUserId();
+  const pool = getPool();
+  const [project, time, tasks, deploys] = await Promise.all([
+    pool.query<{ started_at: string | null; ended_at: string | null }>(
+      "select started_at::text, ended_at::text from projects where id = $1 and user_id = $2",
+      [projectId, userId],
+    ),
+    pool.query<{ total: string }>(
+      "select coalesce(sum(end_min - start_min), 0) as total from time_logs where user_id = $1 and project_id = $2",
+      [userId, projectId],
+    ),
+    pool.query<{ done: string; dropped: string }>(
+      `select count(*) filter (where status = 'done') as done,
+         count(*) filter (where status = 'dropped') as dropped
+       from tasks where user_id = $1 and project_id = $2 and target_year is null`,
+      [userId, projectId],
+    ),
+    pool.query<{ count: string }>(
+      `select count(*) from deployments d join environments e on e.id = d.environment_id
+       where d.user_id = $1 and e.project_id = $2`,
+      [userId, projectId],
+    ),
+  ]);
+  const from = project.rows[0]?.started_at ?? null;
+  const to = project.rows[0]?.ended_at ?? new Date().toISOString().slice(0, 10);
+  const days = from ? Math.max(Math.round((new Date(to).getTime() - new Date(from).getTime()) / 86_400_000), 1) : 0;
+  return {
+    from,
+    to,
+    days,
+    totalMin: Number(time.rows[0].total),
+    doneCount: Number(tasks.rows[0].done),
+    droppedCount: Number(tasks.rows[0].dropped),
+    deployCount: Number(deploys.rows[0].count),
+  };
+}
+
+const RETRO_COLUMNS: Record<keyof RetroFields, string> = {
+  good: "good",
+  bad: "bad",
+  learned: "learned",
+  neverAgain: "never_again",
+};
+
+/**
+ * 회고 저장 — 최초 작성 시 stats 스냅샷을 함께 저장한다 (작성 시점 스냅샷 원칙).
+ * 기존 행이 있으면 **주어진 문항만** 갱신한다 — 재종료 게이트에서 한 문항만 채워도
+ * 이전 답변이 null로 덮이면 안 된다 (BUG-04 행 재사용의 취지).
+ */
+export async function upsertRetro(projectId: string, fields: RetroFields): Promise<Retrospective | null> {
+  const userId = await getUserId();
+  const exists = await getRetro(projectId);
+
+  if (exists) {
+    const sets: string[] = ["updated_at = now()"];
+    const params: unknown[] = [userId, projectId];
+    for (const [key, column] of Object.entries(RETRO_COLUMNS) as [keyof RetroFields, string][]) {
+      if (fields[key] === undefined) continue;
+      params.push(fields[key]);
+      sets.push(`${column} = $${params.length}`);
+    }
+    const r = await getPool().query<RetroRow>(
+      `update retrospectives set ${sets.join(", ")}
+       where user_id = $1 and project_id = $2 returning ${RETRO_FIELDS}`,
+      params,
+    );
+    return r.rows.length > 0 ? toRetro(r.rows[0]) : null;
+  }
+
+  const stats = await computeRetroStats(projectId);
+  const r = await getPool().query<RetroRow>(
+    `insert into retrospectives (user_id, project_id, good, bad, learned, never_again, stats)
+     select $1, id, $3, $4, $5, $6, $7::jsonb from projects where id = $2 and user_id = $1
+     on conflict (project_id) do nothing
+     returning ${RETRO_FIELDS}`,
+    [userId, projectId, fields.good ?? null, fields.bad ?? null, fields.learned ?? null,
+      fields.neverAgain ?? null, JSON.stringify(stats)],
+  );
+  return r.rows.length > 0 ? toRetro(r.rows[0]) : getRetro(projectId);
 }
 
 // ---------- 생애 타임라인 재료 (§5.5 — v0.3부터 쌓은 로그를 그린다) ----------
