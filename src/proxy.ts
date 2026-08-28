@@ -10,6 +10,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // API fetch가 302를 따라가 로그인 HTML을 res.ok로 받으면 저장 실패가 성공처럼 보인다
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+  }
   return NextResponse.redirect(new URL("/login", request.url));
 }
 

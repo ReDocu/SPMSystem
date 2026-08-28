@@ -36,12 +36,12 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
   }, []);
 
   const handleProcess = useCallback(
-    async (id: string) => {
+    async (id: string, as: "task" | "timelog") => {
       setError(null);
       const res = await fetch(`/api/inbox/${id}/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ as: "task" }),
+        body: JSON.stringify({ as }),
       }).catch(() => null);
       if (!res?.ok) {
         setError("처리하지 못했습니다 — 다시 시도해주세요");
@@ -148,7 +148,9 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
       ) : (
         <ul className="overflow-hidden rounded-xl border border-line bg-surface">
           {items.map((item) => {
-            const badges = guessBadges(parseCapture(item.rawText));
+            // 상대 날짜("내일")는 캡처 시점 기준 — 전환 시 저장될 값과 배지가 일치해야 한다
+            const guess = parseCapture(item.rawText, new Date(item.createdAt));
+            const badges = guessBadges(guess);
             return (
               <li
                 key={item.id}
@@ -172,9 +174,21 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
                     </span>
                   ))}
                   <span className="flex-1" />
+                  {guess.timeRange && (
+                    <button
+                      onClick={() => handleProcess(item.id, "timelog")}
+                      className="rounded-md border border-ink px-2.5 py-1 text-xs font-medium hover:bg-surface-2"
+                    >
+                      ⏱ 타임로그로
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleProcess(item.id)}
-                    className="rounded-md border border-ink px-2.5 py-1 text-xs font-medium hover:bg-surface-2"
+                    onClick={() => handleProcess(item.id, "task")}
+                    className={`rounded-md border px-2.5 py-1 text-xs ${
+                      guess.timeRange
+                        ? "border-line text-muted hover:text-ink"
+                        : "border-ink font-medium hover:bg-surface-2"
+                    }`}
                   >
                     ✓ 할 일로
                   </button>

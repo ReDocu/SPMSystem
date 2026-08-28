@@ -6,7 +6,13 @@ import { countUnprocessed } from "@/lib/inbox/repo";
 export const dynamic = "force-dynamic";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const inboxCount = isDbConfigured() ? await countUnprocessed() : 0;
+  // DB 장애가 레이아웃을 죽이면 모든 페이지가 에러 화면이 된다 — 카운트는 0으로 강등
+  const inboxCount = isDbConfigured()
+    ? await countUnprocessed().catch((error) => {
+        console.error("사이드바 인박스 카운트 실패:", error);
+        return 0;
+      })
+    : 0;
   return (
     <div className="flex min-h-screen">
       <AppSidebar inboxCount={inboxCount} />

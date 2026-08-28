@@ -15,7 +15,12 @@ const TILES = [
 
 // 메인 런처 — 사이드바 없음(관문 역할). 데이터는 GET /api/summary 1회 (v0.1은 스텁)
 export default async function LauncherPage() {
-  const inboxCount = isDbConfigured() ? await countUnprocessed() : 0;
+  const inboxCount = isDbConfigured()
+    ? await countUnprocessed().catch((error) => {
+        console.error("런처 인박스 카운트 실패:", error);
+        return 0;
+      })
+    : 0;
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-10 py-12">
       <header className="flex items-center justify-between">

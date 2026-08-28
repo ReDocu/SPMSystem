@@ -19,7 +19,9 @@ interface InboxRow {
   created_at: string;
 }
 
-const ROW_FIELDS = "id, raw_text, source, guessed_type, created_at::text";
+// ISO(UTC)로 내보내 클라이언트 new Date()와 ::timestamptz 복원 양쪽에서 안전하게 파싱되게 한다
+const CREATED_ISO = `to_char(created_at at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z'`;
+const ROW_FIELDS = `id, raw_text, source, guessed_type, ${CREATED_ISO} as created_at`;
 
 function toItem(row: InboxRow): InboxItem {
   return {
@@ -98,29 +100,74 @@ export async function restoreItem(item: InboxItem): Promise<InboxItem> {
   return r.rows.length > 0 ? toItem(r.rows[0]) : item;
 }
 
-/** 항목을 할 일(tasks)로 전환하고 처리 완료로 표시한다. 파싱 날짜는 마감일로 들어간다. */
+/**
+ * 항목을 할 일(tasks)로 전환하고 처리 완료로 표시한다.
+ * - "내일" 등 상대 날짜는 캡처 시점(created_at) 기준으로 파싱한다 (전환일 기준이면 날짜가 밀린다)
+ * - 파싱 날짜는 마감일 + 그날의 할 일(planned_date)로 넣는다 — due_date만 있으면
+ *   v0.1의 어느 목록(오늘/못 한 일/백로그)에도 나타나지 않는 고아가 된다
+ */
 export async function processAsTask(id: string): Promise<{ taskId: string } | null> {
   const userId = await getUserId();
   const client = await getPool().connect();
   try {
     await client.query("begin");
-    const found = await client.query<{ raw_text: string }>(
+    const found = await client.query<{ raw_text: string; created_at: string }>(
       `update inbox_items set processed_at = now()
        where id = $1 and user_id = $2 and processed_at is null
-       returning raw_text`,
+       returning raw_text, ${CREATED_ISO} as created_at`,
       [id, userId],
     );
     if (found.rows.length === 0) {
       await client.query("rollback");
       return null;
     }
-    const guess = parseCapture(found.rows[0].raw_text);
+    const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
     const task = await client.query<{ id: string }>(
-      `insert into tasks (user_id, title, due_date) values ($1, $2, $3) returning id`,
+      `insert into tasks (user_id, title, due_date, planned_date)
+       values ($1, $2, $3, $3) returning id`,
       [userId, guess.title || found.rows[0].raw_text, guess.date ?? null],
     );
     await client.query("commit");
     return { taskId: task.rows[0].id };
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/** 항목을 타임로그로 전환한다 — 시간 범위 추정이 있을 때만. 날짜 없으면 오늘 (상세기획 §4.7). */
+export async function processAsTimelog(
+  id: string,
+  today: string,
+): Promise<{ logId: string } | "no_time_range" | null> {
+  const userId = await getUserId();
+  const client = await getPool().connect();
+  try {
+    await client.query("begin");
+    const found = await client.query<{ raw_text: string; created_at: string }>(
+      `update inbox_items set processed_at = now()
+       where id = $1 and user_id = $2 and processed_at is null
+       returning raw_text, ${CREATED_ISO} as created_at`,
+      [id, userId],
+    );
+    if (found.rows.length === 0) {
+      await client.query("rollback");
+      return null;
+    }
+    const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
+    if (!guess.timeRange) {
+      await client.query("rollback");
+      return "no_time_range";
+    }
+    const log = await client.query<{ id: string }>(
+      `insert into time_logs (user_id, date, start_min, end_min, content)
+       values ($1, $2, $3, $4, $5) returning id`,
+      [userId, guess.date ?? today, guess.timeRange.startMin, guess.timeRange.endMin, guess.title],
+    );
+    await client.query("commit");
+    return { logId: log.rows[0].id };
   } catch (error) {
     await client.query("rollback");
     throw error;
