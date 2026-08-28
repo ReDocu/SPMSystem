@@ -154,10 +154,25 @@ export async function processAsTimelog(
       await client.query("rollback");
       return "no_time_range";
     }
+    // #태그는 파싱에서 제목 밖으로 빠지므로 내용에 되살리고 프로젝트도 연결한다
+    const content = [guess.title, guess.project && `#${guess.project}`].filter(Boolean).join(" ");
+    const linked = guess.project
+      ? await client.query<{ id: string }>(
+          "select id from projects where user_id = $1 and lower(title) = lower($2) limit 1",
+          [userId, guess.project],
+        )
+      : null;
     const log = await client.query<{ id: string }>(
-      `insert into time_logs (user_id, date, start_min, end_min, content)
-       values ($1, $2, $3, $4, $5) returning id`,
-      [userId, guess.date ?? today, guess.timeRange.startMin, guess.timeRange.endMin, guess.title],
+      `insert into time_logs (user_id, date, start_min, end_min, content, project_id)
+       values ($1, $2, $3, $4, $5, $6) returning id`,
+      [
+        userId,
+        guess.date ?? today,
+        guess.timeRange.startMin,
+        guess.timeRange.endMin,
+        content || found.rows[0].raw_text,
+        linked?.rows[0]?.id ?? null,
+      ],
     );
     await client.query("commit");
     return { logId: log.rows[0].id };
@@ -225,6 +240,93 @@ export async function processAsResource(id: string): Promise<{ resourceId: strin
         );
     await client.query("commit");
     return { resourceId: inserted.rows[0].id };
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * `#프로젝트명` 항목을 해당 프로젝트 태스크로 전환한다 (기획서 §4.2).
+ * 일치하는 프로젝트가 없으면 idea 프로젝트를 만들어 연결한다 — 일단 저장, 분류는 후처리.
+ */
+export async function processAsProjectTask(id: string): Promise<{ taskId: string } | null> {
+  const userId = await getUserId();
+  const { insertProjectTx, recomputeProgress } = await import("@/lib/projects/repo");
+  const client = await getPool().connect();
+  let projectId: string | null = null;
+  try {
+    // 항목 선점 → 프로젝트 조회/생성 → 태스크 생성을 한 트랜잭션으로.
+    // 순서가 반대면 더블클릭 경쟁에서 고아 프로젝트가 커밋된다
+    await client.query("begin");
+    const found = await client.query<{ raw_text: string; created_at: string }>(
+      `update inbox_items set processed_at = now()
+       where id = $1 and user_id = $2 and processed_at is null
+       returning raw_text, ${CREATED_ISO} as created_at`,
+      [id, userId],
+    );
+    if (found.rows.length === 0) {
+      await client.query("rollback");
+      return null;
+    }
+    const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
+
+    const tag = guess.project ?? null;
+    if (tag) {
+      const existing = await client.query<{ id: string }>(
+        "select id from projects where user_id = $1 and lower(title) = lower($2) limit 1",
+        [userId, tag],
+      );
+      projectId =
+        existing.rows.length > 0
+          ? existing.rows[0].id
+          : (await insertProjectTx(client, userId, tag, "인박스 태스크에서 자동 생성")).id;
+    }
+
+    const task = await client.query<{ id: string }>(
+      `insert into tasks (user_id, project_id, title, due_date, planned_date)
+       values ($1, $2, $3, $4, $4) returning id`,
+      [userId, projectId, guess.title || found.rows[0].raw_text, guess.date ?? null],
+    );
+    await client.query("commit");
+    if (projectId) {
+      await recomputeProgress(projectId).catch((error) =>
+        console.error("진행률 재계산 실패:", error),
+      );
+    }
+    return { taskId: task.rows[0].id };
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/** "프로젝트 아이디어" 처리 — idea 프로젝트 생성 (자료수집 아이디어와 분기, R3). */
+export async function processAsProjectIdea(id: string): Promise<{ projectId: string } | null> {
+  const userId = await getUserId();
+  const { insertProjectTx } = await import("@/lib/projects/repo");
+  const client = await getPool().connect();
+  try {
+    await client.query("begin");
+    const found = await client.query<{ raw_text: string; created_at: string }>(
+      `update inbox_items set processed_at = now()
+       where id = $1 and user_id = $2 and processed_at is null
+       returning raw_text, ${CREATED_ISO} as created_at`,
+      [id, userId],
+    );
+    if (found.rows.length === 0) {
+      await client.query("rollback");
+      return null;
+    }
+    const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
+    const title = guess.title.split("\n")[0].slice(0, 120) || found.rows[0].raw_text.slice(0, 120);
+    const project = await insertProjectTx(client, userId, title, found.rows[0].raw_text);
+    await client.query("commit");
+    return { projectId: project.id };
   } catch (error) {
     await client.query("rollback");
     throw error;

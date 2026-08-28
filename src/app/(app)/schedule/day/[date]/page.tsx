@@ -89,7 +89,9 @@ export default async function DayPage({ params }: { params: Promise<{ date: stri
         <div className="flex gap-0.5 rounded-lg border border-line bg-surface p-0.5 text-xs">
           <span className="rounded-md bg-ink px-3 py-1 font-medium text-surface">일별</span>
           <span className="px-3 py-1 text-muted">달별 v0.4</span>
-          <span className="px-3 py-1 text-muted">연별 v0.3</span>
+          <Link href={`/schedule/year/${day.getFullYear()}`} className="px-3 py-1 text-muted hover:text-ink">
+            연별
+          </Link>
         </div>
       </header>
 

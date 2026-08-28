@@ -3,14 +3,17 @@ import { formatKoreanDate } from "@/lib/dates";
 import { isDbConfigured } from "@/lib/db";
 import { countUnprocessed } from "@/lib/inbox/repo";
 import { resourceTileCounts } from "@/lib/resources/repo";
+import { projectTileCounts } from "@/lib/projects/repo";
 import { QuickCapture } from "@/components/quick-capture";
 
 export const dynamic = "force-dynamic";
 
+const EMPTY_PROJECT_TILE = { activeCount: 0, recent: null, hasOverdue: false };
+
 // 메인 런처 — 사이드바 없음(관문 역할)
 export default async function LauncherPage() {
-  // 타일별로 격리 — resources 조회 실패가 인박스 카운트까지 0으로 만들면 안 된다
-  const [inboxCount, resourceCounts] = isDbConfigured()
+  // 타일별로 격리 — 한 타일의 조회 실패가 다른 타일까지 0으로 만들면 안 된다
+  const [inboxCount, resourceCounts, projectCounts] = isDbConfigured()
     ? await Promise.all([
         countUnprocessed().catch((error) => {
           console.error("런처 인박스 카운트 실패:", error);
@@ -20,12 +23,23 @@ export default async function LauncherPage() {
           console.error("런처 자료수집 타일 실패:", error);
           return { weekCount: 0, ideaCount: 0 };
         }),
+        projectTileCounts().catch((error) => {
+          console.error("런처 프로젝트 타일 실패:", error);
+          return EMPTY_PROJECT_TILE;
+        }),
       ])
-    : [0, { weekCount: 0, ideaCount: 0 }];
+    : [0, { weekCount: 0, ideaCount: 0 }, EMPTY_PROJECT_TILE];
 
   const TILES = [
     { href: "/schedule", title: "일정", main: "오늘 남은 —", sub: "기록을 시작해보세요" },
-    { href: "/projects", title: "프로젝트", main: "v0.3 예정", sub: "", disabled: true },
+    {
+      href: "/projects",
+      title: `프로젝트${projectCounts.hasOverdue ? " 🔴" : ""}`,
+      main: `진행 중 ${projectCounts.activeCount}`,
+      sub: projectCounts.recent
+        ? `${projectCounts.recent.title} ${projectCounts.recent.progress}%`
+        : "아이디어를 심어보세요",
+    },
     { href: "/ops", title: "운영·배포", main: "v0.5 예정", sub: "", disabled: true },
     {
       href: "/resources",

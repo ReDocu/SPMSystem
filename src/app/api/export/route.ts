@@ -11,6 +11,9 @@ const TABLES: Record<string, string> = {
   daily_notes: "date", // created_at 없음 (unique user_id+date)
   inbox_items: "created_at",
   resources: "created_at",
+  milestones: "created_at",
+  documents: "created_at",
+  project_events: "occurred_at",
 };
 
 export async function GET() {

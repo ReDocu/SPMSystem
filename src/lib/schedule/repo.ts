@@ -1,5 +1,8 @@
 import { getPool } from "@/lib/db";
 import { getUserId } from "@/lib/user";
+import { findProjectIdByTag, recomputeProgress } from "@/lib/projects/repo";
+
+export type TaskStatus = "todo" | "doing" | "done" | "dropped";
 
 export interface TimeLog {
   id: string;
@@ -15,6 +18,8 @@ export interface Task {
   status: string;
   dueDate: string | null;
   plannedDate: string | null;
+  projectId: string | null;
+  projectTitle?: string | null; // 백로그의 프로젝트 배지용 (조인 시에만 채움)
 }
 
 export interface DailyNote {
@@ -23,7 +28,7 @@ export interface DailyNote {
 }
 
 const LOG_FIELDS = "id, date::text, start_min, end_min, content";
-const TASK_FIELDS = "id, title, status, due_date::text, planned_date::text";
+const TASK_FIELDS = "id, title, status, due_date::text, planned_date::text, project_id";
 
 interface LogRow {
   id: string;
@@ -39,6 +44,8 @@ interface TaskRow {
   status: string;
   due_date: string | null;
   planned_date: string | null;
+  project_id: string | null;
+  project_title?: string | null;
 }
 
 const toLog = (r: LogRow): TimeLog => ({
@@ -55,7 +62,11 @@ const toTask = (r: TaskRow): Task => ({
   status: r.status,
   dueDate: r.due_date,
   plannedDate: r.planned_date,
+  projectId: r.project_id,
+  ...(r.project_title !== undefined && { projectTitle: r.project_title }),
 });
+
+const TAG_RE = /#([\p{L}\p{N}_-]+)/u;
 
 // ---------- 타임로그 ----------
 
@@ -75,10 +86,13 @@ export async function createLog(
   content: string,
 ): Promise<TimeLog> {
   const userId = await getUserId();
+  // `#프로젝트명`이 프로젝트 제목과 일치하면 자동 연결 → 투입 시간 집계 재료 (상세기획 §4.3)
+  const tag = content.match(TAG_RE)?.[1];
+  const projectId = tag ? await findProjectIdByTag(tag) : null;
   const r = await getPool().query<LogRow>(
-    `insert into time_logs (user_id, date, start_min, end_min, content)
-     values ($1, $2, $3, $4, $5) returning ${LOG_FIELDS}`,
-    [userId, date, startMin, endMin, content],
+    `insert into time_logs (user_id, date, start_min, end_min, content, project_id)
+     values ($1, $2, $3, $4, $5, $6) returning ${LOG_FIELDS}`,
+    [userId, date, startMin, endMin, content, projectId],
   );
   return toLog(r.rows[0]);
 }
@@ -110,7 +124,7 @@ export async function listPlannedTasks(date: string): Promise<Task[]> {
   const userId = await getUserId();
   const r = await getPool().query<TaskRow>(
     `select ${TASK_FIELDS} from tasks
-     where user_id = $1 and planned_date = $2
+     where user_id = $1 and planned_date = $2 and status <> 'dropped'
      order by status = 'done', created_at`,
     [userId, date],
   );
@@ -127,7 +141,7 @@ export async function sweepMissedToBacklog(today: string): Promise<number> {
   const userId = await getUserId();
   const r = await getPool().query(
     `update tasks set planned_date = null
-     where user_id = $1 and status <> 'done'
+     where user_id = $1 and status not in ('done', 'dropped')
        and planned_date < $2::date - interval '7 days'
        and due_date is null and target_year is null`,
     [userId, today],
@@ -140,21 +154,23 @@ export async function listMissedTasks(today: string): Promise<Task[]> {
   const userId = await getUserId();
   const r = await getPool().query<TaskRow>(
     `select ${TASK_FIELDS} from tasks
-     where user_id = $1 and status <> 'done' and planned_date < $2
+     where user_id = $1 and status not in ('done', 'dropped') and planned_date < $2
      order by planned_date desc`,
     [userId, today],
   );
   return r.rows.map(toTask);
 }
 
-/** 백로그 — 마감·계획일·연간 목표가 모두 없는 미완료 (상세기획 §4.5 BUG-01). */
+/** 백로그 — 마감·계획일·연간 목표가 모두 없는 미완료. 프로젝트 태스크는 배지로 구분 (§4.5). */
 export async function listBacklog(): Promise<Task[]> {
   const userId = await getUserId();
   const r = await getPool().query<TaskRow>(
-    `select ${TASK_FIELDS} from tasks
-     where user_id = $1 and status = 'todo'
-       and planned_date is null and due_date is null and target_year is null
-     order by created_at desc`,
+    `select t.id, t.title, t.status, t.due_date::text, t.planned_date::text, t.project_id,
+       p.title as project_title
+     from tasks t left join projects p on p.id = t.project_id
+     where t.user_id = $1 and t.status = 'todo'
+       and t.planned_date is null and t.due_date is null and t.target_year is null
+     order by t.created_at desc`,
     [userId],
   );
   return r.rows.map(toTask);
@@ -170,13 +186,21 @@ export async function createTask(title: string, plannedDate: string | null): Pro
   return toTask(r.rows[0]);
 }
 
-export async function setTaskStatus(id: string, status: "todo" | "done"): Promise<Task | null> {
+export async function setTaskStatus(id: string, status: TaskStatus): Promise<Task | null> {
   const userId = await getUserId();
   const r = await getPool().query<TaskRow>(
     `update tasks set status = $3 where id = $1 and user_id = $2 returning ${TASK_FIELDS}`,
     [id, userId, status],
   );
-  return r.rows.length > 0 ? toTask(r.rows[0]) : null;
+  if (r.rows.length === 0) return null;
+  const task = toTask(r.rows[0]);
+  // 진행률 캐시는 best-effort — 재계산 실패가 이미 커밋된 상태 변경을 500으로 만들면 안 된다
+  if (task.projectId) {
+    await recomputeProgress(task.projectId).catch((error) =>
+      console.error("진행률 재계산 실패:", error),
+    );
+  }
+  return task;
 }
 
 /** 오늘로 재선정(날짜) 또는 백로그 반환(null). */
@@ -190,6 +214,50 @@ export async function setTaskPlannedDate(
     [id, userId, plannedDate],
   );
   return r.rows.length > 0 ? toTask(r.rows[0]) : null;
+}
+
+// ---------- 연별 TO DO (화면명세서 §4-3) ----------
+
+/** 올해 하고 싶은 일 — target_year 태스크. done·dropped도 취소선으로 잔존. */
+export async function listYearTasks(year: number): Promise<Task[]> {
+  const userId = await getUserId();
+  const r = await getPool().query<TaskRow>(
+    `select t.id, t.title, t.status, t.due_date::text, t.planned_date::text, t.project_id,
+       p.title as project_title
+     from tasks t left join projects p on p.id = t.project_id
+     where t.user_id = $1 and t.target_year = $2
+     order by t.status in ('done','dropped'), t.created_at`,
+    [userId, year],
+  );
+  return r.rows.map(toTask);
+}
+
+export async function createYearTask(title: string, year: number): Promise<Task> {
+  const userId = await getUserId();
+  const r = await getPool().query<TaskRow>(
+    `insert into tasks (user_id, title, target_year) values ($1, $2, $3)
+     returning ${TASK_FIELDS}`,
+    [userId, title, year],
+  );
+  return toTask(r.rows[0]);
+}
+
+/** 연별 항목 [프로젝트로 만들기] → idea 프로젝트 생성 + 원본 연결 (USE-05). */
+export async function promoteYearTask(taskId: string): Promise<{ projectId: string } | null> {
+  const userId = await getUserId();
+  const found = await getPool().query<{ title: string }>(
+    "select title from tasks where id = $1 and user_id = $2 and target_year is not null",
+    [taskId, userId],
+  );
+  if (found.rows.length === 0) return null;
+  const { createProject } = await import("@/lib/projects/repo");
+  const project = await createProject(found.rows[0].title, "연간 목표에서 승격");
+  await getPool().query("update tasks set project_id = $3 where id = $1 and user_id = $2", [
+    taskId,
+    userId,
+    project.id,
+  ]);
+  return { projectId: project.id };
 }
 
 // ---------- 데일리 노트 ----------

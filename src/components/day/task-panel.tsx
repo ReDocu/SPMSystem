@@ -118,6 +118,11 @@ export function TaskPanel({ date, today, planned, missed, backlog }: TaskPanelPr
             {backlog.map((task) => (
               <li key={task.id} className="flex items-center gap-2 text-xs">
                 <span className="min-w-0 flex-1 truncate">{task.title}</span>
+                {task.projectTitle && (
+                  <span className="flex-none rounded-full border border-line bg-surface-2 px-1.5 text-[10px] text-muted">
+                    #{task.projectTitle}
+                  </span>
+                )}
                 <button
                   onClick={() => patchTask(task.id, { plannedDate: today })}
                   className="flex-none rounded border border-line px-1.5 py-0.5 text-[11px] hover:border-ink"

@@ -6,15 +6,23 @@ import { parseCapture, type CaptureGuess } from "@/lib/capture/parse";
 import { guessBadges } from "@/lib/capture/format";
 import type { InboxItem } from "@/lib/inbox/repo";
 
-type ProcessAs = "task" | "timelog" | "resource";
+type ProcessAs = "task" | "timelog" | "resource" | "project_task" | "project_idea";
 
 interface ProcessAction {
   label: string;
   as: ProcessAs;
 }
 
-// 기본 버튼 1개 + 탈출구 (§4.3). 아이디어의 종착지는 자료수집 (자료수집-상세기획 R3)
+// 기본 버튼 1개 + 탈출구 (§4.3). 아이디어의 종착지는 자료수집, 프로젝트 아이디어는 idea 프로젝트 (R3)
 function processActions(guess: CaptureGuess): ProcessAction[] {
+  if (guess.type === "project_task") {
+    return [
+      { label: `▤ #${guess.project} 태스크로`, as: "project_task" },
+      // 시간 범위까지 있으면 기록으로 남길 탈출구도 유지 ("#SPM 9-12 개발")
+      ...(guess.timeRange ? [{ label: "⏱ 타임로그로", as: "timelog" } as ProcessAction] : []),
+      { label: "할 일로", as: "task" },
+    ];
+  }
   if (guess.type === "resource") {
     return [
       { label: "◈ 자료로", as: "resource" },
@@ -25,6 +33,7 @@ function processActions(guess: CaptureGuess): ProcessAction[] {
     return [
       { label: "아이디어로", as: "resource" },
       { label: "할 일로", as: "task" },
+      { label: "프로젝트 아이디어", as: "project_idea" },
     ];
   }
   if (guess.timeRange) {

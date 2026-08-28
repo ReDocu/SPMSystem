@@ -1,9 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isDbConfigured } from "@/lib/db";
-import { processAsResource, processAsTask, processAsTimelog } from "@/lib/inbox/repo";
+import {
+  processAsProjectIdea,
+  processAsProjectTask,
+  processAsResource,
+  processAsTask,
+  processAsTimelog,
+} from "@/lib/inbox/repo";
 import { toDateKey } from "@/lib/dates";
 
-// 전환 종착지: 할 일·타임로그(v0.1) + 자료·아이디어(v0.2) — 프로젝트 태스크는 v0.3 (ISSUE-11)
+// 전환 종착지: 할 일·타임로그(v0.1) + 자료·아이디어(v0.2) + 프로젝트 태스크·아이디어(v0.3)
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -21,6 +27,16 @@ export async function POST(
   try {
     if (body.as === "task") {
       const result = await processAsTask(id);
+      if (!result) return NextResponse.json({ error: "항목이 없습니다" }, { status: 404 });
+      return NextResponse.json(result);
+    }
+    if (body.as === "project_task") {
+      const result = await processAsProjectTask(id);
+      if (!result) return NextResponse.json({ error: "항목이 없습니다" }, { status: 404 });
+      return NextResponse.json(result);
+    }
+    if (body.as === "project_idea") {
+      const result = await processAsProjectIdea(id);
       if (!result) return NextResponse.json({ error: "항목이 없습니다" }, { status: 404 });
       return NextResponse.json(result);
     }

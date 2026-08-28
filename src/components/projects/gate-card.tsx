@@ -1,0 +1,197 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { gateOf, type Project, type ProjectStatus } from "@/lib/projects/model";
+
+interface GateCardProps {
+  project: Project;
+  to: ProjectStatus | null; // null이면 전이 없이 필드만 수정 ([게이트 카드 다시 열기])
+  onClose: () => void;
+}
+
+// 게이트 카드 — 유일하게 허용된 모달 (§5-6). 소프트 강제: 건너뛰어도 전이된다
+export function GateCard({ project, to, onClose }: GateCardProps) {
+  const router = useRouter();
+  const gate = to ? gateOf(project.status, to) : "G1"; // 다시 열기는 킥오프(G1) 필드
+  const [fields, setFields] = useState({
+    purpose: project.purpose ?? "",
+    targetUser: project.targetUser ?? "",
+    scopeIn: project.scopeIn ?? "",
+    scopeOut: project.scopeOut ?? "",
+    repoUrl: project.repoUrl ?? "",
+    techStack: (project.techStack ?? []).join(", "),
+    deployUrl: project.deployUrl ?? "",
+    firstTasks: "",
+    milestoneTitle: "",
+    milestoneDue: "",
+  });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
+
+  const set = (key: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setFields({ ...fields, [key]: e.target.value });
+
+  const buildPatch = () => {
+    if (gate === "G1") {
+      return {
+        purpose: fields.purpose,
+        targetUser: fields.targetUser,
+        scopeIn: fields.scopeIn,
+        scopeOut: fields.scopeOut,
+      };
+    }
+    if (gate === "G2") {
+      return {
+        repoUrl: fields.repoUrl,
+        techStack: fields.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+      };
+    }
+    return { deployUrl: fields.deployUrl };
+  };
+
+  const submit = async (withFields: boolean) => {
+    if (busy) return;
+    setBusy(true);
+    setError(false);
+    let ok = true;
+
+    if (to) {
+      const res = await fetch(`/api/projects/${project.id}/transition`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to, patch: withFields ? buildPatch() : {} }),
+      }).catch(() => null);
+      ok = Boolean(res?.ok);
+      // G2: 첫 태스크·마일스톤 초안은 전이 후 이어서 생성
+      if (ok && withFields && gate === "G2") {
+        const tasks = fields.firstTasks.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 3);
+        for (const title of tasks) {
+          await fetch(`/api/projects/${project.id}/tasks`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title }),
+          }).catch(() => null);
+        }
+        if (fields.milestoneTitle.trim()) {
+          await fetch(`/api/projects/${project.id}/milestones`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: fields.milestoneTitle.trim(),
+              dueDate: fields.milestoneDue || null,
+            }),
+          }).catch(() => null);
+        }
+      }
+    } else {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildPatch()),
+      }).catch(() => null);
+      ok = Boolean(res?.ok);
+    }
+
+    setBusy(false);
+    if (!ok) {
+      setError(true);
+      return;
+    }
+    onClose();
+    router.refresh();
+  };
+
+  const input = (label: string, key: keyof typeof fields, placeholder = "") => (
+    <label className="flex flex-col gap-1 text-xs">
+      <span className="text-muted">{label}</span>
+      <input
+        value={fields[key]}
+        onChange={set(key)}
+        placeholder={placeholder}
+        className="rounded-md border border-line bg-surface px-2.5 py-1.5 outline-none focus:border-primary"
+      />
+    </label>
+  );
+
+  const titles: Record<string, string> = {
+    G1: "킥오프 — 왜, 누구를 위해, 무엇을",
+    G2: "개발 시작 — 저장소·스택·첫 태스크",
+    G3: "플랫폼 선정 — 배포 정보",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={onClose}>
+      <div
+        className="flex w-full max-w-md flex-col gap-3 rounded-xl border border-line bg-surface p-5 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-sm font-bold">
+          {to ? `${to}로 전이 — ${titles[gate ?? "G1"]}` : `게이트 카드 — ${titles.G1}`}
+        </h2>
+
+        {gate === "G1" && (
+          <>
+            {input("목적 (왜 만드나)", "purpose")}
+            {input("타겟 (누구를 위해)", "targetUser")}
+            {input("만들 것", "scopeIn")}
+            {input("안 만들 것", "scopeOut")}
+          </>
+        )}
+        {gate === "G2" && (
+          <>
+            {input("저장소 URL", "repoUrl", "https://github.com/…")}
+            {input("기술스택 (쉼표 구분)", "techStack", "Next.js, Postgres")}
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-muted">첫 태스크 (줄당 1개, 최대 3)</span>
+              <textarea
+                value={fields.firstTasks}
+                onChange={set("firstTasks")}
+                rows={3}
+                className="rounded-md border border-line bg-surface px-2.5 py-1.5 outline-none focus:border-primary"
+              />
+            </label>
+            <div className="flex gap-2">
+              <div className="flex-1">{input("마일스톤 초안", "milestoneTitle", "MVP")}</div>
+              <label className="flex w-32 flex-none flex-col gap-1 text-xs">
+                <span className="text-muted">마감</span>
+                <input
+                  type="date"
+                  value={fields.milestoneDue}
+                  onChange={set("milestoneDue")}
+                  className="rounded-md border border-line bg-surface px-2 py-1.5 outline-none focus:border-primary"
+                />
+              </label>
+            </div>
+            <p className="text-[11px] text-muted">
+              색상 자동 배정: <span style={{ color: project.color ?? undefined }}>●</span>{" "}
+              {project.color}
+            </p>
+          </>
+        )}
+        {gate === "G3" && input("배포 URL", "deployUrl", "https://…")}
+
+        {error && <p className="text-[11px] text-muted">저장하지 못했습니다 — 다시 시도해주세요</p>}
+
+        <div className="mt-1 flex items-center justify-end gap-2">
+          {to && (
+            <button
+              onClick={() => submit(false)}
+              disabled={busy}
+              className="rounded-md border border-line px-3 py-1.5 text-xs text-muted hover:text-ink"
+            >
+              나중에 채우기
+            </button>
+          )}
+          <button
+            onClick={() => submit(true)}
+            disabled={busy}
+            className="rounded-md border border-ink px-3 py-1.5 text-xs font-medium hover:bg-surface-2"
+          >
+            {to ? "채우고 전이 →" : "저장"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

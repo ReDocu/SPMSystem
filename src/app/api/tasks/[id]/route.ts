@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isDbConfigured } from "@/lib/db";
-import { setTaskPlannedDate, setTaskStatus } from "@/lib/schedule/repo";
+import { setTaskPlannedDate, setTaskStatus, type TaskStatus } from "@/lib/schedule/repo";
 import { isDateKey } from "@/lib/schedule/validate";
+
+const STATUSES: TaskStatus[] = ["todo", "doing", "done", "dropped"];
 
 // 체크(status) · 오늘로 재선정/백로그 반환(plannedDate) — 한 번에 하나의 변경만 받는다
 export async function PATCH(
@@ -20,10 +22,10 @@ export async function PATCH(
 
   try {
     if (body.status !== undefined) {
-      if (body.status !== "todo" && body.status !== "done") {
+      if (!STATUSES.includes(body.status as TaskStatus)) {
         return NextResponse.json({ error: "상태가 올바르지 않습니다" }, { status: 400 });
       }
-      const task = await setTaskStatus(id, body.status);
+      const task = await setTaskStatus(id, body.status as TaskStatus);
       if (!task) return NextResponse.json({ error: "태스크가 없습니다" }, { status: 404 });
       return NextResponse.json({ task });
     }

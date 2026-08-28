@@ -24,8 +24,9 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
   const [draft, setDraft] = useState<Draft | null>(null);
   const [editing, setEditing] = useState<{ block: MergedBlock; text: string } | null>(null);
   const [nowMin, setNowMin] = useState<number | null>(null);
-  const [undo, setUndo] = useState<{ logs: TimeLog[]; label: string } | null>(null);
-  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 연속 삭제해도 각 블록의 되돌리기를 보존 (인박스·자료 목록과 동일한 큐 방식)
+  const [undoQueue, setUndoQueue] = useState<{ logs: TimeLog[]; label: string }[]>([]);
+  const undoTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   // "3-5 새벽 작업"처럼 접힌 구간에 블록이 생기면 자동으로 펼친다 (렌더 중 상태 보정 패턴)
   const [prevHasEarlyLogs, setPrevHasEarlyLogs] = useState(hasEarlyLogs);
@@ -59,7 +60,10 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
     // "9-12 SPM 개발"처럼 시간 범위를 쓰면 그 범위가 슬롯보다 우선 (상세기획 §4.3)
     const guess = parseCapture(text);
     const range = guess.timeRange ?? { startMin: draft.startMin, endMin: draft.endMin };
-    const content = guess.timeRange ? guess.title || text : text;
+    // 파싱이 #태그를 제목 밖으로 빼므로 내용에 되살린다 — 프로젝트 자동 연결의 재료
+    const content = guess.timeRange
+      ? [guess.title || text, guess.project && `#${guess.project}`].filter(Boolean).join(" ")
+      : text;
     const res = await fetch("/api/timelogs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -100,18 +104,28 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
     }).catch(() => null);
     if (!res?.ok) return;
     setEditing(null);
-    if (undoTimer.current) clearTimeout(undoTimer.current);
-    setUndo({ logs: deletedLogs, label: editing.block.content });
-    undoTimer.current = setTimeout(() => setUndo(null), 5000);
+    const key = editing.block.logIds[0];
+    setUndoQueue((prev) => [...prev, { logs: deletedLogs, label: editing.block.content }]);
+    undoTimers.current.set(
+      key,
+      setTimeout(() => {
+        setUndoQueue((prev) => prev.filter((e) => e.logs[0]?.id !== key));
+        undoTimers.current.delete(key);
+      }, 5000),
+    );
     router.refresh();
   };
 
-  const handleUndo = async () => {
-    if (!undo) return;
-    if (undoTimer.current) clearTimeout(undoTimer.current);
-    setUndo(null);
+  const handleUndo = async (entry: { logs: TimeLog[]; label: string }) => {
+    const key = entry.logs[0]?.id;
+    if (key) {
+      const timer = undoTimers.current.get(key);
+      if (timer) clearTimeout(timer);
+      undoTimers.current.delete(key);
+    }
+    setUndoQueue((prev) => prev.filter((e) => e !== entry));
     await Promise.all(
-      undo.logs.map((l) =>
+      entry.logs.map((l) =>
         fetch("/api/timelogs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -236,12 +250,22 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
         </div>
       )}
 
-      {undo && (
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs shadow-lg">
-          <span className="max-w-56 truncate text-muted">삭제됨 — {undo.label}</span>
-          <button onClick={handleUndo} className="font-medium text-ink underline underline-offset-2">
-            되돌리기
-          </button>
+      {undoQueue.length > 0 && (
+        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2">
+          {undoQueue.map((entry) => (
+            <div
+              key={entry.logs[0]?.id ?? entry.label}
+              className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs shadow-lg"
+            >
+              <span className="max-w-56 truncate text-muted">삭제됨 — {entry.label}</span>
+              <button
+                onClick={() => handleUndo(entry)}
+                className="font-medium text-ink underline underline-offset-2"
+              >
+                되돌리기
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </section>
