@@ -424,7 +424,8 @@
                       "fill": "$muted",
                       "content": "solo@spm.app",
                       "fontFamily": "$mono",
-                      "fontSize": 8
+                      "fontSize": 8,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -1989,7 +1990,8 @@
                   "fill": "$muted",
                   "content": "오늘의 흐름을 한눈에 정리하세요",
                   "fontFamily": "$font",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -2630,7 +2632,8 @@
               "width": "fill_container",
               "content": "빠른 입력 — 무엇이든 던져두세요",
               "fontFamily": "$font",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
@@ -2753,7 +2756,8 @@
                       "fill": "$muted",
                       "content": "빠르게 저장한 항목을 1~2번의 선택으로 제자리에 보냅니다.",
                       "fontFamily": "$font",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -3648,7 +3652,8 @@
                       "fill": "$muted",
                       "content": "시간 기록과 오늘 할 일을 한 화면에서 이어갑니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -3951,7 +3956,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -3992,7 +3998,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4033,7 +4040,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4257,7 +4265,8 @@
                           "fill": "$muted",
                           "content": "점심",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4359,7 +4368,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4400,7 +4410,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4441,7 +4452,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4482,7 +4494,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4523,7 +4536,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -4642,7 +4656,8 @@
                               "fill": "$muted",
                               "content": "병원 예약",
                               "fontFamily": "$font",
-                              "fontSize": 10
+                              "fontSize": 10,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -4771,6 +4786,50 @@
                           "fontWeight": "650"
                         },
                         {
+                          "type": "frame",
+                          "id": "d1nAz",
+                          "name": "Event Past",
+                          "width": "fill_container",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ZGyyw",
+                              "name": "Event Past Label",
+                              "fill": "$muted",
+                              "content": "10:00 · 스탠드업 (지남)",
+                              "fontFamily": "$font",
+                              "fontSize": 10,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mum5D",
+                              "name": "Copy To Log Chip",
+                              "fill": "$surface-2",
+                              "cornerRadius": 4,
+                              "padding": [
+                                3,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "K49jQT",
+                                  "name": "Copy To Log Label",
+                                  "fill": "$ink",
+                                  "content": "기록으로 복사",
+                                  "fontFamily": "$font",
+                                  "fontSize": 9,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
                           "type": "text",
                           "id": "kzenT",
                           "name": "Event Hospital",
@@ -4822,7 +4881,8 @@
                           "fill": "$muted",
                           "content": "오늘의 한 줄을 남겨보세요",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -4922,7 +4982,8 @@
                       "fill": "$muted",
                       "content": "시간 배분과 일정·마감 레이어를 월 단위로 확인합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -5001,6 +5062,30 @@
                       "icon": "chevron-right",
                       "library": "lucide",
                       "fill": "$ink"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "M128sQ",
+                      "name": "Month Today Button",
+                      "cornerRadius": 5,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        8,
+                        11
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PWGun",
+                          "name": "Today Button Label",
+                          "fill": "$ink",
+                          "content": "오늘",
+                          "fontFamily": "$font",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -5357,6 +5442,31 @@
                                   "width": 9,
                                   "height": 5,
                                   "fill": "$warning"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "JIrvl",
+                              "name": "Event 수업",
+                              "width": "fill_container",
+                              "fill": "$primary-soft",
+                              "cornerRadius": 3,
+                              "padding": [
+                                2,
+                                6
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sC16R",
+                                  "name": "Event 수업 Label",
+                                  "fill": "$primary",
+                                  "content": "수업",
+                                  "fontFamily": "$font",
+                                  "fontSize": 8,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -5722,6 +5832,31 @@
                                   "fill": "$warning"
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "JtCWQ",
+                              "name": "Event 수업",
+                              "width": "fill_container",
+                              "fill": "$primary-soft",
+                              "cornerRadius": 3,
+                              "padding": [
+                                2,
+                                6
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "o3FqjY",
+                                  "name": "Event 수업 Label",
+                                  "fill": "$primary",
+                                  "content": "수업",
+                                  "fontFamily": "$font",
+                                  "fontSize": 8,
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -5771,6 +5906,16 @@
                                   "fill": "$warning"
                                 }
                               ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "CsZZK",
+                              "name": "Deadline 12 Overdue",
+                              "fill": "$danger",
+                              "content": "초안 마감 · 지남",
+                              "fontFamily": "$font",
+                              "fontSize": 8,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -6073,6 +6218,31 @@
                                   "width": 8,
                                   "height": 5,
                                   "fill": "$warning"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "aseJ5",
+                              "name": "Event 수업",
+                              "width": "fill_container",
+                              "fill": "$primary-soft",
+                              "cornerRadius": 3,
+                              "padding": [
+                                2,
+                                6
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "h5uyvV",
+                                  "name": "Event 수업 Label",
+                                  "fill": "$primary",
+                                  "content": "수업",
+                                  "fontFamily": "$font",
+                                  "fontSize": 8,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -6428,6 +6598,31 @@
                                   "fill": "$warning"
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BVBhN",
+                              "name": "Event 수업",
+                              "width": "fill_container",
+                              "fill": "$primary-soft",
+                              "cornerRadius": 3,
+                              "padding": [
+                                2,
+                                6
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "EQJhf",
+                                  "name": "Event 수업 Label",
+                                  "fill": "$primary",
+                                  "content": "수업",
+                                  "fontFamily": "$font",
+                                  "fontSize": 8,
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -6629,7 +6824,7 @@
                               "type": "text",
                               "id": "sd0mT",
                               "name": "Deadline 29",
-                              "fill": "$danger",
+                              "fill": "$ink",
                               "content": "API v1 마감",
                               "fontFamily": "$font",
                               "fontSize": 8,
@@ -7248,7 +7443,8 @@
                       "fill": "$muted",
                       "content": "압박 없이 올해 하고 싶은 일을 정리합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -7327,6 +7523,30 @@
                       "icon": "chevron-right",
                       "library": "lucide",
                       "fill": "$ink"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IF693",
+                      "name": "Year Today Button",
+                      "cornerRadius": 5,
+                      "stroke": "$line",
+                      "strokeWidth": 1,
+                      "padding": [
+                        8,
+                        11
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "S6uvFB",
+                          "name": "Today Button Label",
+                          "fill": "$ink",
+                          "content": "오늘",
+                          "fontFamily": "$font",
+                          "fontSize": 10,
+                          "fontWeight": "600"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -7490,7 +7710,8 @@
                       "fill": "$muted",
                       "content": "SPM v0.1 실사용 시작",
                       "fontFamily": "$font",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -7557,7 +7778,8 @@
                       "name": "Goal Spacer 1",
                       "fill": "$muted",
                       "fontFamily": "$font",
-                      "fontSize": 9
+                      "fontSize": 9,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -7614,7 +7836,8 @@
                       "name": "Goal Spacer 2",
                       "fill": "$muted",
                       "fontFamily": "$font",
-                      "fontSize": 9
+                      "fontSize": 9,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -7674,7 +7897,8 @@
                       "fill": "$muted",
                       "content": "알고리즘 스터디",
                       "fontFamily": "$font",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -7682,7 +7906,8 @@
                       "name": "Goal Spacer 3",
                       "fill": "$muted",
                       "fontFamily": "$font",
-                      "fontSize": 9
+                      "fontSize": 9,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -7767,7 +7992,8 @@
                       "fill": "$muted",
                       "content": "2월 · 결혼기념일 · 지남",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -7894,7 +8120,8 @@
                       "fill": "$muted",
                       "content": "상태별로 프로젝트를 훑고 다음 작업을 선택합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -8595,6 +8822,30 @@
                       "fontFamily": "$font",
                       "fontSize": 12,
                       "fontWeight": "650"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "f3RArC",
+                      "name": "Retro Missing Badge",
+                      "fill": "$danger-soft",
+                      "cornerRadius": 99,
+                      "padding": [
+                        2,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "IJ6pF",
+                          "name": "Retro Missing Label",
+                          "fill": "$danger",
+                          "content": "회고 미작성 1",
+                          "fontFamily": "$font",
+                          "fontSize": 10,
+                          "fontWeight": "normal"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -8644,7 +8895,7 @@
           "width": "fill_container",
           "height": "fill_container",
           "layout": "vertical",
-          "gap": 18,
+          "gap": 16,
           "padding": [
             28,
             36
@@ -8783,14 +9034,16 @@
               "id": "w8iR3",
               "name": "Lifecycle Timeline",
               "width": "fill_container",
-              "height": 82,
               "fill": "$surface",
               "cornerRadius": 6,
               "stroke": "$line",
               "strokeWidth": 1,
               "layout": "vertical",
-              "gap": 9,
-              "padding": 14,
+              "gap": 8,
+              "padding": [
+                16,
+                14
+              ],
               "children": [
                 {
                   "type": "frame",
@@ -8890,6 +9143,55 @@
                   "fontFamily": "$mono",
                   "fontSize": 8,
                   "fontWeight": "550"
+                },
+                {
+                  "type": "frame",
+                  "id": "kPgte",
+                  "name": "Lifecycle Legend",
+                  "gap": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LdULD",
+                      "name": "Legend 게이트",
+                      "fill": "$muted",
+                      "content": "↑ 게이트",
+                      "fontFamily": "$font",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RFExO",
+                      "name": "Legend 마일스톤",
+                      "fill": "$muted",
+                      "content": "◆ 마일스톤",
+                      "fontFamily": "$font",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "o3XMD",
+                      "name": "Legend 배포",
+                      "fill": "$muted",
+                      "content": "▲ 배포",
+                      "fontFamily": "$font",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Y63W57",
+                      "name": "Legend 회고",
+                      "fill": "$muted",
+                      "content": "● 회고 · 완료 시 기록",
+                      "fontFamily": "$font",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
                 }
               ]
             },
@@ -11177,7 +11479,8 @@
                           "content": "## 목적\nSPM의 핵심 기능과 범위를 정의한다.\n\n## 요구사항\n- 빠른 입력과 인박스 분류\n- 일별 타임라인 기록\n- 프로젝트 생애주기 추적\n- 운영·배포 상태 관리",
                           "lineHeight": 1.7,
                           "fontFamily": "$mono",
-                          "fontSize": 11
+                          "fontSize": 11,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -11222,7 +11525,8 @@
                           "content": "SPM의 핵심 기능과 범위를 정의한다.\n\n빠른 입력부터 운영 상태까지 개인 프로젝트의 전체 흐름을 한곳에서 관리합니다.",
                           "lineHeight": 1.6,
                           "fontFamily": "$font",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -11845,7 +12149,8 @@
                       "fill": "$muted",
                       "content": "프로젝트를 돌아보며 한두 문장으로 기록하세요",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -11888,7 +12193,8 @@
                       "fill": "$muted",
                       "content": "프로젝트를 돌아보며 한두 문장으로 기록하세요",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -11931,7 +12237,8 @@
                       "fill": "$muted",
                       "content": "프로젝트를 돌아보며 한두 문장으로 기록하세요",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -11974,7 +12281,8 @@
                       "fill": "$muted",
                       "content": "프로젝트를 돌아보며 한두 문장으로 기록하세요",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -12919,7 +13227,8 @@
                       "fill": "$muted",
                       "content": "비워두고 넘어가도 개요에서 계속 확인할 수 있어요.",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -12962,7 +13271,8 @@
                           "fill": "$muted",
                           "content": "왜 만드나요?",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -13007,7 +13317,8 @@
                           "fill": "$muted",
                           "content": "누구를 위해 만드나요?",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -13052,7 +13363,8 @@
                           "fill": "$muted",
                           "content": "이번 단계에 포함할 범위",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -13097,7 +13409,8 @@
                           "fill": "$muted",
                           "content": "명시적으로 제외할 범위",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -13256,7 +13569,8 @@
                       "fill": "$muted",
                       "content": "운영 중인 프로젝트의 건강 상태와 갱신 일정을 모읍니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -13682,7 +13996,8 @@
                       "fill": "$muted",
                       "content": "운영 플랫폼과 가격 확인 이력을 관리합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -14827,7 +15142,8 @@
                       "fill": "$muted",
                       "content": "배포 환경과 시크릿 메타데이터를 안전하게 기록합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15678,7 +15994,8 @@
                       "fill": "$muted",
                       "content": "체크리스트 스냅샷과 변경사항을 함께 남깁니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -16796,7 +17113,8 @@
                       "fill": "$muted",
                       "content": "운영 장애의 원인과 재발 방지를 짧게 기록합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -17489,7 +17807,8 @@
                       "fill": "$muted",
                       "content": "통화별 비용과 갱신·가격 확인 시점을 관리합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -18551,7 +18870,8 @@
                       "fill": "$muted",
                       "content": "웹 자료와 아이디어를 검색하고 프로젝트로 연결합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -18608,7 +18928,8 @@
                       "fill": "$muted",
                       "content": "제목과 메모 검색",
                       "fontFamily": "$font",
-                      "fontSize": 10
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -19584,7 +19905,8 @@
                       "fill": "$muted",
                       "content": "계정·테마·알림·백업과 북마클릿을 관리합니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -19978,7 +20300,8 @@
                       "fill": "$muted",
                       "content": "https://discord.com/api/webhooks/...",
                       "fontFamily": "$mono",
-                      "fontSize": 8
+                      "fontSize": 8,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -20265,7 +20588,8 @@
                       "fill": "$muted",
                       "content": "시간 기록과 오늘 할 일을 한 화면에서 이어갑니다.",
                       "fontFamily": "$font",
-                      "fontSize": 11
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -20568,7 +20892,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -20609,7 +20934,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -20650,7 +20976,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -20874,7 +21201,8 @@
                           "fill": "$muted",
                           "content": "점심",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -20976,7 +21304,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -21017,7 +21346,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -21058,7 +21388,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -21099,7 +21430,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -21140,7 +21472,8 @@
                           "fill": "$muted",
                           "content": "클릭해 기록",
                           "fontFamily": "$font",
-                          "fontSize": 9
+                          "fontSize": 9,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -21259,7 +21592,8 @@
                               "fill": "$muted",
                               "content": "병원 예약",
                               "fontFamily": "$font",
-                              "fontSize": 10
+                              "fontSize": 10,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -21439,7 +21773,8 @@
                           "fill": "$muted",
                           "content": "오늘의 한 줄을 남겨보세요",
                           "fontFamily": "$font",
-                          "fontSize": 10
+                          "fontSize": 10,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -22353,7 +22688,8 @@
                   "width": "fill_container",
                   "content": "무엇이든 던져두세요",
                   "fontFamily": "$font",
-                  "fontSize": 11
+                  "fontSize": 11,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "text",
