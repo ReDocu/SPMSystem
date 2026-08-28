@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { formatKoreanDate } from "@/lib/dates";
+import { isDbConfigured } from "@/lib/db";
+import { countUnprocessed } from "@/lib/inbox/repo";
+import { QuickCapture } from "@/components/quick-capture";
+
+export const dynamic = "force-dynamic";
 
 const TILES = [
   { href: "/schedule", title: "일정", main: "오늘 남은 —", sub: "기록을 시작해보세요" },
@@ -9,7 +14,8 @@ const TILES = [
 ];
 
 // 메인 런처 — 사이드바 없음(관문 역할). 데이터는 GET /api/summary 1회 (v0.1은 스텁)
-export default function LauncherPage() {
+export default async function LauncherPage() {
+  const inboxCount = isDbConfigured() ? await countUnprocessed() : 0;
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-10 py-12">
       <header className="flex items-center justify-between">
@@ -41,13 +47,12 @@ export default function LauncherPage() {
         )}
       </div>
 
-      <Link
-        href="/inbox"
-        className="flex items-center justify-between rounded-xl border border-dashed border-line bg-surface px-5 py-4 text-sm text-muted hover:text-ink"
-      >
-        <span>&gt; 빠른 입력 — 무엇이든 던져두세요</span>
-        <span className="rounded-full border border-line px-2 py-0.5 text-[11px]">⌘K</span>
-      </Link>
+      <div className="flex flex-col gap-1">
+        <QuickCapture />
+        <Link href="/inbox" className="px-2 text-xs text-muted hover:text-ink">
+          📥 인박스 {inboxCount > 0 ? `${inboxCount}건 미처리` : "비어 있음 ✨"}
+        </Link>
+      </div>
     </div>
   );
 }
