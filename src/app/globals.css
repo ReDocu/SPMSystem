@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* SPMSystem.pen 디자인 토큰 */
+:root {
+  --bg: #eff6fb;
+  --surface: #ffffff;
+  --surface-2: #e3eef6;
+  --ink: #18324a;
+  --muted: #667c8e;
+  --line: #c9dce9;
+  --primary: #2f75b5;
+  --primary-soft: #dceeff;
+  --danger: #c94b56;
+  --danger-soft: #fcedef;
+  --warning: #c47b18;
+  --warning-soft: #fff4dc;
+  --success: #25806a;
+  --success-soft: #e4f4ef;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1a23;
+    --surface: #172630;
+    --surface-2: #20333f;
+    --ink: #edf6fb;
+    --muted: #9eb2c1;
+    --line: #2c4453;
+    --primary-soft: #183c57;
+    --danger-soft: #3b2229;
+    --warning-soft: #3a2d19;
+    --success-soft: #183a32;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e1a23;
+  --surface: #172630;
+  --surface-2: #20333f;
+  --ink: #edf6fb;
+  --muted: #9eb2c1;
+  --line: #2c4453;
+  --primary-soft: #183c57;
+  --danger-soft: #3b2229;
+  --warning-soft: #3a2d19;
+  --success-soft: #183a32;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-sans: var(--font-geist-sans), "Malgun Gothic", sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --radius-md: 6px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
