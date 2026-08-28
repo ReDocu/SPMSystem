@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+  <style>
+    body { margin: 0; background: #0f0f11; }
+    a { color: #d9a154; text-decoration: none; }
+    a:hover { color: #e8b96f; }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; background: #131316; color: #e9e7e4; display: flex; flex-direction: column; font-family: 'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif; overflow: hidden; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 68px; padding: 0 48px; border-bottom: 1px solid #1f1f24; flex-shrink: 0; box-sizing: border-box;">
+    <div style="display: flex; align-items: baseline; gap: 14px;">
+      <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 17px; font-weight: 600; letter-spacing: 0.18em; color: #e9e7e4;">SPM</div>
+      <div style="font-size: 12px; color: #5c5a63;">Single Project Management</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 24px;">
+      <div style="font-size: 13px; color: #8f8d95;">2026-08-26 수요일</div>
+      <div style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; color: #6f6d76;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+
+    <div style="width: 1044px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+
+      <div style="background: #19191d; border: 1px solid #26262b; border-radius: 10px; padding: 22px 26px; height: 248px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #6f6d76;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #b9b7bf;">일정 관리</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 7px;">
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 8px rgba(229, 72, 77, 0.6);"></div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #e5484d;">마감 지남 1</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 9px;">
+          <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 42px; font-weight: 600; line-height: 1; color: #e9e7e4;">3</div>
+          <div style="font-size: 13px; color: #8f8d95;">오늘 남은 할 일</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+            <div style="color: #e5484d;">로그인 API 구현</div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #e5484d;">어제 마감</div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+            <div style="color: #c9c7ce;">병원 예약</div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #6f6d76;">15:00</div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+            <div style="color: #c9c7ce;">블로그 초안</div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #6f6d76;">오늘</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #19191d; border: 1px solid #26262b; border-radius: 10px; padding: 22px 26px; height: 248px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #6f6d76;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #b9b7bf;">프로젝트 관리</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 9px;">
+          <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 42px; font-weight: 600; line-height: 1; color: #e9e7e4;">3</div>
+          <div style="font-size: 13px; color: #8f8d95;">진행 중 프로젝트</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+            <div style="color: #c9c7ce;">SPM System</div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #8f8d95;">62%</div>
+          </div>
+          <div style="height: 4px; border-radius: 2px; background: #26262b; overflow: hidden;">
+            <div style="width: 62%; height: 4px; border-radius: 2px; background: #d9a154;"></div>
+          </div>
+          <div style="font-size: 12px; color: #5c5a63;">최근 활동 · 오늘</div>
+        </div>
+      </div>
+
+      <div style="background: #19191d; border: 1px solid #26262b; border-radius: 10px; padding: 22px 26px; height: 248px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #6f6d76;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #b9b7bf;">운영 · 배포</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 7px;">
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #e2a33c; box-shadow: 0 0 8px rgba(226, 163, 60, 0.5);"></div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #e2a33c;">D-7</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 9px;">
+          <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 42px; font-weight: 600; line-height: 1; color: #e9e7e4;">2</div>
+          <div style="font-size: 13px; color: #8f8d95;">운영 중 서비스</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; font-size: 13px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 7px; height: 7px; border-radius: 50%; background: #4cc38a;"></div>
+            <div style="color: #8f8d95;">모든 서비스 정상</div>
+            <div style="color: #3a383f;">·</div>
+            <div style="color: #8f8d95;">최근 배포 <span style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px;">v0.4.2</span> 어제</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; color: #e2a33c;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <div>spm.example.com SSL 만료 D-7</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #19191d; border: 1px solid #26262b; border-radius: 10px; padding: 22px 26px; height: 248px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #6f6d76;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+            <div style="font-size: 14px; font-weight: 500; color: #b9b7bf;">자료 수집</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 9px;">
+          <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 42px; font-weight: 600; line-height: 1; color: #e9e7e4;">23</div>
+          <div style="font-size: 13px; color: #8f8d95;">안 읽은 자료</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 9px; font-size: 13px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="color: #c9c7ce;">인박스 미처리</div>
+            <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 12px; color: #8f8d95;">7건</div>
+          </div>
+          <div style="font-size: 12px; color: #5c5a63;">오늘 4건 수집</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="width: 1044px; height: 54px; background: #1c1c21; border: 1px solid #2c2c33; border-radius: 10px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 18px;">
+      <div style="display: flex; align-items: center; color: #6f6d76;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </div>
+      <div style="flex: 1; font-size: 14px; color: #6f6d76;">무엇이든 던져 넣기 — 할 일, 링크, 아이디어, #프로젝트 태스크</div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 11px; color: #8f8d95; background: #26262b; border: 1px solid #333338; border-radius: 5px; padding: 3px 7px;">⌘</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; font-size: 11px; color: #8f8d95; background: #26262b; border: 1px solid #333338; border-radius: 5px; padding: 3px 7px;">K</div>
+      </div>
+    </div>
+
+    <div style="width: 1044px; display: flex; align-items: center; gap: 8px; color: #8f8d95;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+      <div style="font-size: 13px;">인박스 7건 미처리</div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

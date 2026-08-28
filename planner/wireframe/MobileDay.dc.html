@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', system-ui, sans-serif; color: #334155; background: #ffffff; }
+    a { color: #2563eb; } a:hover { color: #1d4ed8; }
+    .mut { color: #94a3b8; }
+    .sm { font-size: 12px; }
+    .row { display: flex; align-items: center; }
+    .box { border: 1.5px solid #cbd5e1; border-radius: 10px; background: #ffffff; }
+    .dashed { border: 1.5px dashed #cbd5e1; border-radius: 8px; background: #ffffff; }
+    .n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700; flex: none; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 14px; height: 44px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #475569; background: #ffffff; white-space: nowrap; box-sizing: border-box; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; background: #ffffff; padding: 60px 20px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; position: relative;">
+  <div class="row" style="gap: 8px;">
+    <div class="btn" style="width: 44px; padding: 0;">◀</div>
+    <span style="font-size: 15px; font-weight: 700; flex: 1; text-align: center;">8/27 (목)</span>
+    <div class="btn" style="width: 44px; padding: 0;">▶</div>
+    <div class="btn">오늘</div>
+  </div>
+  <div class="dashed row" style="padding: 0 14px; height: 48px; gap: 8px;">
+    <span style="font-size: 13px; color: #64748b;">▸ 할 일 3 · 일정 2 · 노트</span>
+    <span class="n">1</span>
+    <span class="sm mut" style="margin-left: auto;">접이식 요약</span>
+  </div>
+  <div style="flex: 1; position: relative;">
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">08</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">09</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">10</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">11</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">12</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">13</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">14</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">15</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div class="row" style="height: 52px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">16</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+    <div style="position: absolute; left: 40px; right: 0; top: 55px; height: 100px; background: #64748b; border-radius: 8px; color: #ffffff; font-size: 12px; padding: 10px 12px; box-sizing: border-box;">SPM 개발 <span style="opacity: 0.7;">#SPM</span></div>
+    <div style="position: absolute; left: 32px; right: 0; top: 296px; border-top: 2px solid #ef4444;"></div>
+    <div class="row" style="position: absolute; left: 40px; right: 0; top: 316px; height: 44px; border: 1.5px dashed #e2e8f0; border-radius: 8px; padding: 0 12px; color: #cbd5e1; font-size: 12px; gap: 8px; box-sizing: border-box;">탭 → 시간 범위 시트<span class="n">2</span></div>
+  </div>
+  <div style="position: absolute; right: 20px; bottom: 34px; display: flex; align-items: center; gap: 8px;">
+    <span class="n">3</span>
+    <div style="width: 56px; height: 56px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(51, 65, 85, 0.3);">
+      <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"></path></svg>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

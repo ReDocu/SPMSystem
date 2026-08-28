@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', system-ui, sans-serif; color: #334155; background: #ffffff; }
+    a { color: #2563eb; } a:hover { color: #1d4ed8; }
+    .mut { color: #94a3b8; }
+    .sm { font-size: 12px; }
+    .row { display: flex; align-items: center; }
+    .box { border: 1.5px solid #cbd5e1; border-radius: 10px; background: #ffffff; }
+    .dashed { border: 1.5px dashed #cbd5e1; border-radius: 8px; background: #ffffff; }
+    .tag { display: inline-flex; align-items: center; padding: 1px 8px; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 11px; color: #64748b; background: #f8fafc; white-space: nowrap; }
+    .n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700; flex: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #475569; background: #ffffff; white-space: nowrap; }
+    .nav { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #475569; }
+    .nava { background: #e2e8f0; color: #1e293b; font-weight: 500; }
+    .tab { padding: 8px 4px; font-size: 13px; color: #94a3b8; margin-right: 20px; }
+    .taba { color: #1e293b; font-weight: 700; border-bottom: 2px solid #334155; }
+    .chip { padding: 4px 12px; font-size: 12px; color: #64748b; border: 1.5px solid #cbd5e1; border-radius: 999px; }
+    .chipa { background: #334155; border-color: #334155; color: #ffffff; }
+  </style>
+</helmet>
+<div style="width: 1200px; height: 780px; background: #ffffff; display: flex; box-sizing: border-box;">
+  <div style="width: 200px; flex: none; border-right: 1.5px solid #e2e8f0; background: #f8fafc; box-sizing: border-box; display: flex; flex-direction: column; padding: 16px 12px; gap: 2px;">
+    <div style="font-weight: 700; font-size: 15px; padding: 4px 10px 14px; letter-spacing: 2px;">SPM</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.8V8l2.2 1.6"></path></svg>일정</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2.2" y="2.8" width="3.2" height="10.4" rx="1"></rect><rect x="6.4" y="2.8" width="3.2" height="7" rx="1"></rect><rect x="10.6" y="2.8" width="3.2" height="4.6" rx="1"></rect></svg>프로젝트</div>
+    <div class="nav nava"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2" y="2.8" width="12" height="4.4" rx="1.2"></rect><rect x="2" y="8.8" width="12" height="4.4" rx="1.2"></rect><path d="M4.6 5h.01M4.6 11h.01" stroke-linecap="round" stroke-width="2"></path></svg>운영·배포</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M4 2.5h8v11L8 10.4 4 13.5z"></path></svg>자료수집</div>
+    <div style="height: 1.5px; background: #e2e8f0; margin: 10px 6px;"></div>
+    <div class="nav" style="justify-content: space-between;">
+      <span class="row" style="gap: 8px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M2 9.2 3.8 3.5h8.4L14 9.2V13H2z"></path><path d="M2 9.2h3.4l1 2h3.2l1-2H14"></path></svg>인박스</span>
+      <span class="tag">7</span>
+    </div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 5.2h11M2.5 10.8h11"></path><circle cx="6" cy="5.2" r="1.7" fill="#f8fafc"></circle><circle cx="10" cy="10.8" r="1.7" fill="#f8fafc"></circle></svg>설정</div>
+    <div style="flex: 1;"></div>
+    <div class="dashed sm mut" style="padding: 8px 10px; text-align: center;">⌘K 빠른 입력</div>
+  </div>
+  <div style="flex: 1; padding: 24px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+    <span style="font-size: 18px; font-weight: 700;">운영 · 배포</span>
+    <div class="row" style="border-bottom: 1.5px solid #e2e8f0;">
+      <span class="tab">대시보드</span><span class="tab taba">플랫폼</span><span class="tab">환경</span><span class="tab">배포</span><span class="tab">장애</span><span class="tab">비용</span>
+    </div>
+    <div class="row" style="justify-content: space-between;">
+      <div class="row" style="gap: 6px;">
+        <span class="chip chipa">전체</span><span class="chip">웹·클라우드</span><span class="chip">게임</span><span class="chip">모바일</span><span class="chip">도메인·구독</span>
+      </div>
+      <div class="btn">+ 직접 추가</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="box row" style="padding: 14px 18px; gap: 12px;">
+        <span style="font-size: 14px; font-weight: 700; width: 90px; flex: none;">Vercel</span>
+        <span class="sm mut" style="flex: 1;">무료: Hobby · 크론 1회/일</span>
+        <div class="btn">가격 페이지 ↗</div><span class="n">1</span>
+        <div class="btn">비용 등록</div><span class="n">2</span>
+      </div>
+      <div class="box row" style="padding: 14px 18px; gap: 12px;">
+        <span style="font-size: 14px; font-weight: 700; width: 90px; flex: none;">Supabase</span>
+        <span class="sm mut" style="flex: 1;">무료: DB 500MB · 7일 무활동 정지</span>
+        <div class="btn">가격 페이지 ↗</div>
+        <div class="btn">비용 등록</div>
+      </div>
+      <div class="box row" style="padding: 14px 18px; gap: 12px;">
+        <span style="font-size: 14px; font-weight: 700; width: 90px; flex: none;">Steam</span>
+        <span class="sm mut" style="flex: 1;">Steamworks $100/게임</span>
+        <div class="btn">가격 페이지 ↗</div>
+        <div class="btn">비용 등록</div>
+      </div>
+    </div>
+    <div class="dashed" style="padding: 14px 18px; margin-top: auto;">
+      <div class="sm" style="font-weight: 700; color: #475569; margin-bottom: 10px;">비용 등록 3단계</div>
+      <div class="row" style="gap: 10px;">
+        <div class="box sm" style="padding: 8px 12px; color: #475569;">1. 가격 페이지 새 탭</div>
+        <span class="mut">→</span>
+        <div class="box sm" style="padding: 8px 12px; color: #475569;">2. 확인한 가격·주기·통화 입력</div>
+        <span class="mut">→</span>
+        <div class="box sm" style="padding: 8px 12px; color: #475569;">3. 확인 저장 (price_checked_at)</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

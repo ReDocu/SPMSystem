@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', system-ui, sans-serif; color: #334155; background: #ffffff; }
+    a { color: #2563eb; } a:hover { color: #1d4ed8; }
+    .mut { color: #94a3b8; }
+    .sm { font-size: 12px; }
+    .row { display: flex; align-items: center; }
+    .box { border: 1.5px solid #cbd5e1; border-radius: 10px; background: #ffffff; }
+    .dashed { border: 1.5px dashed #cbd5e1; border-radius: 8px; background: #ffffff; }
+    .tag { display: inline-flex; align-items: center; padding: 1px 8px; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 11px; color: #64748b; background: #f8fafc; white-space: nowrap; }
+    .n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700; flex: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #475569; background: #ffffff; white-space: nowrap; }
+    .btnp { background: #334155; border-color: #334155; color: #ffffff; }
+    .nav { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #475569; }
+    .nava { background: #e2e8f0; color: #1e293b; font-weight: 500; }
+    .tab { padding: 8px 4px; font-size: 13px; color: #94a3b8; margin-right: 20px; }
+    .taba { color: #1e293b; font-weight: 700; border-bottom: 2px solid #334155; }
+    .fl { font-size: 12px; color: #94a3b8; width: 66px; flex: none; }
+    .fv { font-size: 13px; color: #475569; }
+  </style>
+</helmet>
+<div style="width: 1240px; height: 860px; background: #ffffff; display: flex; box-sizing: border-box;">
+  <div style="width: 200px; flex: none; border-right: 1.5px solid #e2e8f0; background: #f8fafc; box-sizing: border-box; display: flex; flex-direction: column; padding: 16px 12px; gap: 2px;">
+    <div style="font-weight: 700; font-size: 15px; padding: 4px 10px 14px; letter-spacing: 2px;">SPM</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.8V8l2.2 1.6"></path></svg>일정</div>
+    <div class="nav nava"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2.2" y="2.8" width="3.2" height="10.4" rx="1"></rect><rect x="6.4" y="2.8" width="3.2" height="7" rx="1"></rect><rect x="10.6" y="2.8" width="3.2" height="4.6" rx="1"></rect></svg>프로젝트</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2" y="2.8" width="12" height="4.4" rx="1.2"></rect><rect x="2" y="8.8" width="12" height="4.4" rx="1.2"></rect><path d="M4.6 5h.01M4.6 11h.01" stroke-linecap="round" stroke-width="2"></path></svg>운영·배포</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M4 2.5h8v11L8 10.4 4 13.5z"></path></svg>자료수집</div>
+    <div style="height: 1.5px; background: #e2e8f0; margin: 10px 6px;"></div>
+    <div class="nav" style="justify-content: space-between;">
+      <span class="row" style="gap: 8px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M2 9.2 3.8 3.5h8.4L14 9.2V13H2z"></path><path d="M2 9.2h3.4l1 2h3.2l1-2H14"></path></svg>인박스</span>
+      <span class="tag">7</span>
+    </div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 5.2h11M2.5 10.8h11"></path><circle cx="6" cy="5.2" r="1.7" fill="#f8fafc"></circle><circle cx="10" cy="10.8" r="1.7" fill="#f8fafc"></circle></svg>설정</div>
+    <div style="flex: 1;"></div>
+    <div class="dashed sm mut" style="padding: 8px 10px; text-align: center;">⌘K 빠른 입력</div>
+  </div>
+  <div style="flex: 1; padding: 24px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+    <div class="row" style="justify-content: space-between;">
+      <div class="row" style="gap: 10px;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: #64748b; flex: none;"></span>
+        <span style="font-size: 18px; font-weight: 700;">SPM</span>
+        <span class="tag">live</span>
+      </div>
+      <div class="row" style="gap: 8px;">
+        <div class="btn btnp">다음 단계: 완료로 →</div>
+        <span class="n">1</span>
+        <div class="btn">폐기</div>
+      </div>
+    </div>
+    <div class="box" style="padding: 16px 20px;">
+      <div style="position: relative;">
+        <div class="row" style="height: 26px; border-radius: 6px; overflow: hidden;">
+          <div style="width: 8%; height: 26px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8;">idea</div>
+          <div style="width: 16%; height: 26px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b;">planning</div>
+          <div style="width: 46%; height: 26px; background: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #ffffff;">active</div>
+          <div style="width: 30%; height: 26px; background: #64748b; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #ffffff;">live →</div>
+        </div>
+        <div style="position: relative; height: 26px; margin-top: 6px;">
+          <span class="sm" style="position: absolute; left: 7%; color: #64748b;">↑G1</span>
+          <span class="sm" style="position: absolute; left: 22%; color: #64748b;">↑G2</span>
+          <span class="row sm" style="position: absolute; left: 40%; color: #475569; gap: 3px;"><span style="width: 7px; height: 7px; background: #475569; transform: rotate(45deg); display: inline-block;"></span>MVP</span>
+          <span class="row sm" style="position: absolute; left: 56%; color: #475569; gap: 3px;"><span style="width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #475569;"></span>v0.1</span>
+          <span class="sm" style="position: absolute; left: 69%; color: #64748b;">↑G3</span>
+          <span class="row sm" style="position: absolute; left: 84%; color: #475569; gap: 3px;"><span style="width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #475569;"></span>v0.2</span>
+          <span class="n" style="position: absolute; right: 0; top: 2px;">2</span>
+        </div>
+        <div class="row sm mut" style="gap: 14px; margin-top: 4px;">
+          <span>마커:</span>
+          <span class="row" style="gap: 4px;">↑ 게이트</span>
+          <span class="row" style="gap: 4px;"><span style="width: 7px; height: 7px; background: #94a3b8; transform: rotate(45deg); display: inline-block;"></span>마일스톤</span>
+          <span class="row" style="gap: 4px;"><span style="width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #94a3b8;"></span>배포</span>
+          <span class="row" style="gap: 4px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>회고 (완료 시)</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="border-bottom: 1.5px solid #e2e8f0;">
+      <span class="tab taba">개요</span><span class="tab">태스크</span><span class="tab">문서</span><span class="tab">회고</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; flex: 1;">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="box" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;">
+          <div class="row" style="gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700;">킥오프</span>
+            <span class="tag">3/4 채움</span>
+            <span class="n">3</span>
+          </div>
+          <div class="row" style="gap: 8px;"><span class="fl">목적</span><span class="fv">내 일과 프로젝트를 한 곳에서 관리</span></div>
+          <div class="row" style="gap: 8px;"><span class="fl">타겟</span><span class="fv">나 (1인 사용자)</span></div>
+          <div class="row" style="gap: 8px;"><span class="fl">범위 In</span><span class="fv">일정 · 프로젝트 · 운영 · 자료</span></div>
+          <div class="row" style="gap: 8px;"><span class="fl">범위 Out</span><span class="dashed" style="flex: 1; height: 22px;"></span></div>
+          <span class="sm" style="color: #2563eb;">게이트 카드 다시 열기</span>
+        </div>
+        <div class="box" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;">
+          <div class="row" style="gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700;">스택 · 링크</span>
+            <span class="n">4</span>
+          </div>
+          <div class="row" style="gap: 6px;"><span class="tag">Next.js</span><span class="tag">Supabase</span><span class="tag">Vercel</span></div>
+          <div class="row" style="gap: 14px;"><span class="sm" style="color: #2563eb;">repo ↗</span><span class="sm" style="color: #2563eb;">spm.vercel.app ↗</span></div>
+          <div class="row" style="gap: 8px;"><span class="fl">플랫폼</span><span class="fv">Vercel</span><span class="sm" style="color: #2563eb;">운영 ↗</span></div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="box" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px;"><span style="font-size: 13px; font-weight: 700;">시간</span><span class="n">5</span></div>
+          <div class="row" style="gap: 12px;"><span style="font-size: 22px; font-weight: 700;">총 61h</span><span class="mut" style="font-size: 13px;">이번 주 8h</span></div>
+          <span class="sm mut">타임로그 자동 집계 · 상세 통계는 v0.6</span>
+        </div>
+        <div class="box" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px;"><span style="font-size: 13px; font-weight: 700;">마일스톤</span><span class="n">6</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span style="width: 8px; height: 8px; background: #475569; transform: rotate(45deg); display: inline-block; flex: none;"></span>v0.4 캘린더<span class="mut sm" style="margin-left: auto;">9/15</span></div>
+        </div>
+        <div class="box" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px;"><span style="font-size: 13px; font-weight: 700;">연간 목표</span><span class="n">7</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span style="width: 13px; height: 13px; background: #64748b; border-radius: 3px; flex: none;"></span><span class="mut" style="text-decoration: line-through;">SPM v0.1 실사용 시작</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

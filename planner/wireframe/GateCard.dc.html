@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', system-ui, sans-serif; color: #334155; background: #ffffff; }
+    a { color: #2563eb; } a:hover { color: #1d4ed8; }
+    .mut { color: #94a3b8; }
+    .sm { font-size: 12px; }
+    .row { display: flex; align-items: center; }
+    .dashed { border: 1.5px dashed #cbd5e1; border-radius: 8px; background: #ffffff; }
+    .n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700; flex: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #475569; background: #ffffff; white-space: nowrap; }
+    .btnp { background: #334155; border-color: #334155; color: #ffffff; }
+  </style>
+</helmet>
+<div style="width: 560px; height: 520px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+  <div style="width: 440px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 24px 26px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.15);">
+    <div class="row" style="gap: 8px;">
+      <span style="font-size: 15px; font-weight: 700;">planning으로 전이 — 킥오프</span>
+      <span class="n">1</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="sm" style="color: #475569;">목적 (왜 만드나)</span>
+      <div class="dashed" style="height: 34px;"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="sm" style="color: #475569;">타겟 (누구를 위해)</span>
+      <div class="dashed" style="height: 34px;"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="sm" style="color: #475569;">만들 것 (범위 In)</span>
+      <div class="dashed" style="height: 34px;"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="sm" style="color: #475569;">안 만들 것 (범위 Out)</span>
+      <div class="dashed" style="height: 34px;"></div>
+    </div>
+    <div class="row" style="justify-content: space-between; margin-top: 6px;">
+      <div class="btn">나중에 채우기</div>
+      <div class="btn btnp">채우고 전이 →</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

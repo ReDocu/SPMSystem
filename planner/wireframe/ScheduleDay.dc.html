@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', system-ui, sans-serif; color: #334155; background: #ffffff; }
+    a { color: #2563eb; } a:hover { color: #1d4ed8; }
+    .mut { color: #94a3b8; }
+    .sm { font-size: 12px; }
+    .row { display: flex; align-items: center; }
+    .box { border: 1.5px solid #cbd5e1; border-radius: 10px; background: #ffffff; }
+    .dashed { border: 1.5px dashed #cbd5e1; border-radius: 8px; background: #ffffff; }
+    .tag { display: inline-flex; align-items: center; padding: 1px 8px; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 11px; color: #64748b; background: #f8fafc; white-space: nowrap; }
+    .n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 50%; background: #2563eb; color: #ffffff; font-size: 11px; font-weight: 700; flex: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #475569; background: #ffffff; white-space: nowrap; }
+    .nav { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #475569; }
+    .nava { background: #e2e8f0; color: #1e293b; font-weight: 500; }
+    .seg { padding: 5px 14px; font-size: 12px; color: #64748b; }
+    .sega { background: #334155; color: #ffffff; border-radius: 5px; font-weight: 500; }
+    .chk { width: 13px; height: 13px; border: 1.5px solid #94a3b8; border-radius: 3px; flex: none; display: inline-block; box-sizing: border-box; }
+    .chkd { background: #64748b; border-color: #64748b; }
+  </style>
+</helmet>
+<div style="width: 1280px; height: 840px; background: #ffffff; display: flex; box-sizing: border-box;">
+  <div style="width: 200px; flex: none; border-right: 1.5px solid #e2e8f0; background: #f8fafc; box-sizing: border-box; display: flex; flex-direction: column; padding: 16px 12px; gap: 2px;">
+    <div style="font-weight: 700; font-size: 15px; padding: 4px 10px 14px; letter-spacing: 2px;">SPM</div>
+    <div class="nav nava"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.8V8l2.2 1.6"></path></svg>일정</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2.2" y="2.8" width="3.2" height="10.4" rx="1"></rect><rect x="6.4" y="2.8" width="3.2" height="7" rx="1"></rect><rect x="10.6" y="2.8" width="3.2" height="4.6" rx="1"></rect></svg>프로젝트</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="2" y="2.8" width="12" height="4.4" rx="1.2"></rect><rect x="2" y="8.8" width="12" height="4.4" rx="1.2"></rect><path d="M4.6 5h.01M4.6 11h.01" stroke-linecap="round" stroke-width="2"></path></svg>운영·배포</div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M4 2.5h8v11L8 10.4 4 13.5z"></path></svg>자료수집</div>
+    <div style="height: 1.5px; background: #e2e8f0; margin: 10px 6px;"></div>
+    <div class="nav" style="justify-content: space-between;">
+      <span class="row" style="gap: 8px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"><path d="M2 9.2 3.8 3.5h8.4L14 9.2V13H2z"></path><path d="M2 9.2h3.4l1 2h3.2l1-2H14"></path></svg>인박스</span>
+      <span class="tag">7</span>
+    </div>
+    <div class="nav"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 5.2h11M2.5 10.8h11"></path><circle cx="6" cy="5.2" r="1.7" fill="#f8fafc"></circle><circle cx="10" cy="10.8" r="1.7" fill="#f8fafc"></circle></svg>설정</div>
+    <div style="flex: 1;"></div>
+    <div class="dashed sm mut" style="padding: 8px 10px; text-align: center;">⌘K 빠른 입력</div>
+  </div>
+  <div style="flex: 1; padding: 22px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+    <div class="row" style="justify-content: space-between;">
+      <div class="row" style="gap: 8px;">
+        <div class="btn" style="padding: 5px 9px;">◀</div>
+        <span style="font-size: 16px; font-weight: 700;">2026-08-27 (목)</span>
+        <div class="btn" style="padding: 5px 9px;">▶</div>
+        <div class="btn">오늘</div>
+      </div>
+      <div class="row box" style="padding: 3px; border-radius: 7px; gap: 2px;">
+        <span class="seg sega">일별</span><span class="seg">달별</span><span class="seg">연별</span>
+      </div>
+    </div>
+    <div style="flex: 1; display: flex; gap: 20px; min-height: 0;">
+      <div style="flex: 1; min-width: 0;">
+        <div class="dashed row sm mut" style="padding: 7px 12px; margin-bottom: 10px; gap: 8px;">▸ 00–06 (접힘)<span class="n">1</span></div>
+        <div style="position: relative;">
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">06</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">07</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">08</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">09</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">10</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">11</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">12</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">13</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">14</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">15</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">16</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div class="row" style="height: 40px; gap: 10px;"><span class="sm mut" style="width: 24px; text-align: right; flex: none;">17</span><div style="flex: 1; border-top: 1px solid #e2e8f0;"></div></div>
+          <div style="position: absolute; left: 44px; right: 8px; top: 121px; height: 78px; background: #64748b; border-radius: 6px; color: #ffffff; font-size: 12px; padding: 8px 12px; box-sizing: border-box; display: flex; align-items: flex-start; justify-content: space-between;">
+            <span>SPM 개발 <span style="opacity: 0.7;">#SPM</span></span>
+            <span class="n" style="background: #ffffff; color: #2563eb;">2</span>
+          </div>
+          <div style="position: absolute; left: 44px; right: 8px; top: 241px; height: 38px; background: #e2e8f0; border-radius: 6px; color: #475569; font-size: 12px; padding: 0 12px; display: flex; align-items: center;">점심</div>
+          <div style="position: absolute; left: 36px; right: 0; top: 308px; border-top: 2px solid #ef4444;"></div>
+          <div class="row" style="position: absolute; left: 44px; top: 312px; gap: 6px;"><span style="font-size: 11px; color: #ef4444; font-weight: 500;">13:42 현재</span><span class="n">3</span></div>
+          <div class="row" style="position: absolute; left: 44px; right: 8px; top: 342px; height: 34px; border: 1.5px dashed #e2e8f0; border-radius: 6px; padding: 0 12px; color: #cbd5e1; font-size: 12px; gap: 8px; box-sizing: border-box;">빈 슬롯 — 클릭해 입력 · 드래그로 범위<span class="n">4</span></div>
+        </div>
+      </div>
+      <div style="width: 330px; flex: none; display: flex; flex-direction: column; gap: 10px;">
+        <div class="box" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px; font-size: 13px; font-weight: 700;">오늘 할 일<span class="n">5</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span class="chk"></span>로그인 API<span class="tag">#SPM</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span class="chk chkd"></span><span class="mut" style="text-decoration: line-through;">병원 예약</span></div>
+        </div>
+        <div class="dashed row" style="padding: 8px 14px; gap: 8px; font-size: 13px; color: #64748b;">▸ 못 한 일 (1)<span class="n">6</span><span class="sm" style="color: #ef4444; margin-left: auto;">지연</span></div>
+        <div class="dashed row" style="padding: 8px 14px; gap: 8px; font-size: 13px; color: #64748b;">▸ 백로그 (12)<span class="n">7</span></div>
+        <div class="box" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px; font-size: 13px; font-weight: 700;">오늘 일정<span class="n">8</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span class="mut sm">10:00</span><span class="mut">스탠드업 (지남)</span><span class="tag" style="margin-left: auto;">기록으로 복사</span></div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span class="mut sm">15:00</span>병원</div>
+          <div class="row" style="gap: 8px; font-size: 13px;"><span class="tag">기념일</span>결혼기념일</div>
+        </div>
+        <div class="box" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="row" style="gap: 8px; font-size: 13px; font-weight: 700;">데일리 노트<span class="n">9</span></div>
+          <div class="dashed" style="height: 30px;"></div>
+        </div>
+        <div class="box row" style="padding: 12px 14px; gap: 10px;">
+          <span style="font-size: 13px; font-weight: 700;">컨디션</span>
+          <span class="n">10</span>
+          <span class="row" style="gap: 8px; margin-left: auto;">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#475569" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="8"></circle><circle cx="7.2" cy="8" r="0.7" fill="#475569"></circle><circle cx="12.8" cy="8" r="0.7" fill="#475569"></circle><path d="M6.8 12c1.2 1.6 5.2 1.6 6.4 0"></path></svg>
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="8"></circle><circle cx="7.2" cy="8" r="0.7" fill="#cbd5e1"></circle><circle cx="12.8" cy="8" r="0.7" fill="#cbd5e1"></circle><path d="M7 12.4c1.4 0.8 4.6 0.8 6 0"></path></svg>
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="8"></circle><circle cx="7.2" cy="8" r="0.7" fill="#cbd5e1"></circle><circle cx="12.8" cy="8" r="0.7" fill="#cbd5e1"></circle><path d="M7 12.6h6"></path></svg>
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="8"></circle><circle cx="7.2" cy="8" r="0.7" fill="#cbd5e1"></circle><circle cx="12.8" cy="8" r="0.7" fill="#cbd5e1"></circle><path d="M6.8 13.2c1.2-1.6 5.2-1.6 6.4 0"></path></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="border-top: 1.5px solid #e2e8f0; padding-top: 12px; gap: 8px;">
+      <span style="font-size: 13px; color: #475569;">기록 9h · #SPM 5h · #블로그 2h · 기타 2h</span>
+      <span class="n">11</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
