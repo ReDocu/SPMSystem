@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isDbConfigured } from "@/lib/db";
 import {
+  processAsEvent,
   processAsProjectIdea,
   processAsProjectTask,
   processAsResource,
@@ -38,6 +39,14 @@ export async function POST(
     if (body.as === "project_idea") {
       const result = await processAsProjectIdea(id);
       if (!result) return NextResponse.json({ error: "항목이 없습니다" }, { status: 404 });
+      return NextResponse.json(result);
+    }
+    if (body.as === "event") {
+      const result = await processAsEvent(id);
+      if (!result) return NextResponse.json({ error: "항목이 없습니다" }, { status: 404 });
+      if (result === "no_date") {
+        return NextResponse.json({ error: "날짜가 없는 항목입니다" }, { status: 400 });
+      }
       return NextResponse.json(result);
     }
     if (body.as === "resource") {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseCapture, type CaptureGuess } from "@/lib/capture/parse";
 import { guessBadges } from "@/lib/capture/format";
 import type { InboxItem } from "@/lib/inbox/repo";
+import { UndoToasts, useUndoQueue, type UndoEntry } from "@/components/undo-toast";
 
-type ProcessAs = "task" | "timelog" | "resource" | "project_task" | "project_idea";
+type ProcessAs = "task" | "timelog" | "resource" | "project_task" | "project_idea" | "event";
 
 interface ProcessAction {
   label: string;
@@ -36,6 +37,13 @@ function processActions(guess: CaptureGuess): ProcessAction[] {
       { label: "프로젝트 아이디어", as: "project_idea" },
     ];
   }
+  if (guess.type === "event") {
+    return [
+      { label: "◷ 일정으로", as: "event" },
+      { label: "⏱ 타임로그로", as: "timelog" },
+      { label: "할 일로", as: "task" },
+    ];
+  }
   if (guess.timeRange) {
     return [
       { label: "⏱ 타임로그로", as: "timelog" },
@@ -49,21 +57,14 @@ function processActions(guess: CaptureGuess): ProcessAction[] {
 }
 
 const FADE_MS = 300; // 처리 후 0.3초 페이드 아웃 (§0.4)
-const UNDO_MS = 5000; // 삭제 5초 되돌리기 (§0.4)
 const SOURCE_ICONS: Record<string, string> = { web: "🌐", bookmarklet: "🔖", mobile: "📱" };
-
-interface UndoEntry {
-  item: InboxItem;
-  expiresAt: number;
-}
 
 export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [leavingIds, setLeavingIds] = useState<Set<string>>(new Set());
-  const [undoQueue, setUndoQueue] = useState<UndoEntry[]>([]);
+  const undoQueue = useUndoQueue<InboxItem>();
   const [error, setError] = useState<string | null>(null);
-  const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const removeWithFade = useCallback((id: string) => {
     setLeavingIds((prev) => new Set(prev).add(id));
@@ -105,41 +106,28 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
       }
       const { item } = (await res.json()) as { item: InboxItem };
       removeWithFade(id);
-      setUndoQueue((prev) => [...prev, { item, expiresAt: Date.now() + UNDO_MS }]);
-      timersRef.current.set(
-        id,
-        setTimeout(() => {
-          setUndoQueue((prev) => prev.filter((e) => e.item.id !== id));
-          timersRef.current.delete(id);
-        }, UNDO_MS),
-      );
+      undoQueue.push({ key: item.id, label: item.rawText, payload: item });
       router.refresh();
     },
-    [removeWithFade, router],
+    [removeWithFade, router, undoQueue],
   );
 
   const handleUndo = useCallback(
-    async (entry: UndoEntry) => {
-      const timer = timersRef.current.get(entry.item.id);
-      if (timer) clearTimeout(timer);
-      timersRef.current.delete(entry.item.id);
-      setUndoQueue((prev) => prev.filter((e) => e.item.id !== entry.item.id));
-
-      const res = await fetch(`/api/inbox/${entry.item.id}/restore`, {
+    async (entry: UndoEntry<InboxItem>) => {
+      const item = undoQueue.take(entry);
+      const res = await fetch(`/api/inbox/${item.id}/restore`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry.item),
+        body: JSON.stringify(item),
       }).catch(() => null);
       if (!res?.ok) {
         setError("되돌리지 못했습니다");
         return;
       }
-      setItems((prev) =>
-        [...prev, entry.item].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-      );
+      setItems((prev) => [...prev, item].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
       router.refresh();
     },
-    [router],
+    [router, undoQueue],
   );
 
   const handleProcessAll = useCallback(async () => {
@@ -242,24 +230,7 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
         </ul>
       )}
 
-      {undoQueue.length > 0 && (
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2">
-          {undoQueue.map((entry) => (
-            <div
-              key={entry.item.id}
-              className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs shadow-lg"
-            >
-              <span className="max-w-56 truncate text-muted">삭제됨 — {entry.item.rawText}</span>
-              <button
-                onClick={() => handleUndo(entry)}
-                className="font-medium text-ink underline underline-offset-2"
-              >
-                되돌리기
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <UndoToasts entries={undoQueue.entries} onUndo={handleUndo} />
     </div>
   );
 }

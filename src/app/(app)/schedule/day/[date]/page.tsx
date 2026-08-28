@@ -14,9 +14,11 @@ import {
   type Task,
   type TimeLog,
 } from "@/lib/schedule/repo";
+import { listOccurrences, type EventOccurrence } from "@/lib/schedule/events";
 import { Timeline } from "@/components/day/timeline";
 import { TaskPanel } from "@/components/day/task-panel";
 import { DailyNotePanel } from "@/components/day/daily-note";
+import { TodaySchedule } from "@/components/day/today-schedule";
 
 interface DayData {
   logs: TimeLog[];
@@ -24,6 +26,7 @@ interface DayData {
   missed: Task[];
   backlog: Task[];
   note: DailyNote;
+  events: EventOccurrence[];
 }
 
 const EMPTY_DAY: DayData = {
@@ -32,6 +35,7 @@ const EMPTY_DAY: DayData = {
   missed: [],
   backlog: [],
   note: { content: null, condition: null },
+  events: [],
 };
 
 async function loadDay(date: string, today: string): Promise<DayData> {
@@ -40,14 +44,19 @@ async function loadDay(date: string, today: string): Promise<DayData> {
     // 7일 자동 반환은 오늘 기록지를 열 때만 — 과거 열람·프리페치는 쓰기를 유발하면 안 된다
     if (date === today) await sweepMissedToBacklog(today);
     // 못 한 일은 열람일이 아니라 오늘 기준 (과거 날짜를 열어도 목록이 흔들리지 않게)
-    const [logs, planned, missed, backlog, note] = await Promise.all([
+    const [logs, planned, missed, backlog, note, events] = await Promise.all([
       listLogs(date),
       listPlannedTasks(date),
       listMissedTasks(today),
       listBacklog(),
       getDailyNote(date),
+      // 일정 조회 실패가 기록지 전체를 비우면 안 된다 (타일별 격리 원칙)
+      listOccurrences(date, date).catch((error) => {
+        console.error("오늘 일정 로딩 실패:", error);
+        return [];
+      }),
     ]);
-    return { logs, planned, missed, backlog, note };
+    return { logs, planned, missed, backlog, note, events };
   } catch (error) {
     console.error("일별 기록지 로딩 실패:", error);
     return EMPTY_DAY;
@@ -62,7 +71,7 @@ export default async function DayPage({ params }: { params: Promise<{ date: stri
   if (Number.isNaN(day.getTime())) notFound();
 
   const today = toDateKey(new Date());
-  const { logs, planned, missed, backlog, note } = await loadDay(date, today);
+  const { logs, planned, missed, backlog, note, events } = await loadDay(date, today);
   const summaryLine = formatDaySummary(summarizeDay(logs));
 
   return (
@@ -88,7 +97,9 @@ export default async function DayPage({ params }: { params: Promise<{ date: stri
         </div>
         <div className="flex gap-0.5 rounded-lg border border-line bg-surface p-0.5 text-xs">
           <span className="rounded-md bg-ink px-3 py-1 font-medium text-surface">일별</span>
-          <span className="px-3 py-1 text-muted">달별 v0.4</span>
+          <Link href={`/schedule/month/${date.slice(0, 7)}`} className="px-3 py-1 text-muted hover:text-ink">
+            달별
+          </Link>
           <Link href={`/schedule/year/${day.getFullYear()}`} className="px-3 py-1 text-muted hover:text-ink">
             연별
           </Link>
@@ -99,6 +110,7 @@ export default async function DayPage({ params }: { params: Promise<{ date: stri
         <Timeline date={date} logs={logs} isToday={date === today} />
         <aside className="flex w-80 flex-none flex-col gap-2.5">
           <TaskPanel date={date} today={today} planned={planned} missed={missed} backlog={backlog} />
+          <TodaySchedule date={date} today={today} occurrences={events} isToday={date === today} />
           <DailyNotePanel date={date} note={note} />
         </aside>
       </div>

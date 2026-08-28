@@ -15,11 +15,11 @@ import { OverviewTab } from "@/components/projects/overview-tab";
 import { KanbanTab } from "@/components/projects/kanban-tab";
 import { DocsTab } from "@/components/projects/docs-tab";
 
+// 회고 탭은 G4와 함께 v0.6 — 미구현 메뉴는 숨긴다 (ISSUE-11)
 const TABS = [
   { key: "overview", label: "개요" },
   { key: "tasks", label: "태스크" },
   { key: "docs", label: "문서" },
-  { key: "retro", label: "회고" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -74,11 +74,6 @@ export default async function ProjectDetailPage({
       )}
       {tab === "tasks" && <KanbanTab projectId={id} tasks={tasks} milestones={milestones} />}
       {tab === "docs" && <DocsTab projectId={id} docs={docs} />}
-      {tab === "retro" && (
-        <div className="rounded-xl border border-line bg-surface p-10 text-center text-sm text-muted">
-          프로젝트를 마치면 회고를 작성합니다 (v0.6)
-        </div>
-      )}
     </div>
   );
 }

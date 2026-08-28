@@ -260,6 +260,40 @@ export async function promoteYearTask(taskId: string): Promise<{ projectId: stri
   return { projectId: project.id };
 }
 
+// ---------- 런처 일정 타일 (화면명세서 §2 타일별 데이터) ----------
+
+export interface ScheduleTile {
+  remainingToday: number;
+  nextEvent: { title: string; startMin: number } | null;
+  hasOverdue: boolean;
+}
+
+export async function scheduleTileCounts(today: string, nowMin: number): Promise<ScheduleTile> {
+  const userId = await getUserId();
+  const pool = getPool();
+  const [remaining, overdue] = await Promise.all([
+    pool.query<{ count: string }>(
+      `select count(*) from tasks
+       where user_id = $1 and planned_date = $2 and status not in ('done', 'dropped')`,
+      [userId, today],
+    ),
+    pool.query<{ exists: boolean }>(
+      `select exists(select 1 from tasks
+         where user_id = $1 and status not in ('done', 'dropped') and due_date < $2) as exists`,
+      [userId, today],
+    ),
+  ]);
+  const { listOccurrences } = await import("@/lib/schedule/events");
+  const todayEvents = await listOccurrences(today, today).catch(() => []);
+  // 다가오는 일정만 — 이미 끝난 일정을 "다음 일정"으로 보여주면 안 된다
+  const next = todayEvents.find((o) => !o.event.allDay && o.event.startMin >= nowMin) ?? null;
+  return {
+    remainingToday: Number(remaining.rows[0].count),
+    nextEvent: next ? { title: next.event.title, startMin: next.event.startMin } : null,
+    hasOverdue: overdue.rows[0].exists,
+  };
+}
+
 // ---------- 데일리 노트 ----------
 
 export async function getDailyNote(date: string): Promise<DailyNote> {

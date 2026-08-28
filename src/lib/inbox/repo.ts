@@ -335,6 +335,43 @@ export async function processAsProjectIdea(id: string): Promise<{ projectId: str
   }
 }
 
+/** 항목을 일정(schedules)으로 전환한다 — 날짜 추정이 있을 때만. 시간 없으면 종일. */
+export async function processAsEvent(id: string): Promise<{ eventId: string } | "no_date" | null> {
+  const userId = await getUserId();
+  const { createEvent } = await import("@/lib/schedule/events");
+  const pool = getPool();
+  const found = await pool.query<{ raw_text: string; created_at: string }>(
+    `select raw_text, ${CREATED_ISO} as created_at from inbox_items
+     where id = $1 and user_id = $2 and processed_at is null`,
+    [id, userId],
+  );
+  if (found.rows.length === 0) return null;
+  const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
+  if (!guess.date) return "no_date";
+
+  const event = await createEvent({
+    // parseEventInput의 MAX_TITLE과 동일 상한 — 라우트를 우회하는 경로에도 캡 유지
+    title: (guess.title || found.rows[0].raw_text).slice(0, 200),
+    date: guess.date,
+    startMin: guess.timeRange?.startMin ?? null,
+    endMin: guess.timeRange?.endMin ?? null,
+    allDay: !guess.timeRange,
+    category: "일반",
+  });
+  const marked = await pool.query(
+    `update inbox_items set processed_at = now()
+     where id = $1 and user_id = $2 and processed_at is null`,
+    [id, userId],
+  );
+  if (marked.rowCount === 0) {
+    // 경쟁으로 이미 처리됨 — 방금 만든 일정을 물려 되돌린다
+    const { deleteEvent } = await import("@/lib/schedule/events");
+    await deleteEvent(event.id).catch(() => undefined);
+    return null;
+  }
+  return { eventId: event.id };
+}
+
 /** "모두 처리 완료" — 남은 항목 전부 처리 표시 (전환 없이 비우기). */
 export async function processAll(): Promise<number> {
   const userId = await getUserId();

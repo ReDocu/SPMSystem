@@ -269,7 +269,8 @@ export async function createMilestone(
      values ($1, $2, $3, $4, $5) returning ${MS_FIELDS}`,
     [userId, projectId, input.title, input.dueDate ?? null, input.weight ?? 1],
   );
-  await recomputeProgress(projectId);
+  // 진행률 캐시는 best-effort — 이미 커밋된 생성을 500으로 만들면 재시도가 중복 행을 만든다
+  await recomputeProgress(projectId).catch((error) => console.error("진행률 재계산 실패:", error));
   return toMilestone(r.rows[0]);
 }
 
@@ -361,7 +362,7 @@ export async function createProjectTask(
      values ($1, $2, $3, $4, $5) returning id`,
     [userId, projectId, input.title, input.milestoneId ?? null, input.dueDate ?? null],
   );
-  await recomputeProgress(projectId);
+  await recomputeProgress(projectId).catch((error) => console.error("진행률 재계산 실패:", error));
   return {
     id: r.rows[0].id,
     title: input.title,

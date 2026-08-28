@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isDbConfigured } from "@/lib/db";
 import { listYearTasks } from "@/lib/schedule/repo";
+import { listOccurrences, type EventOccurrence } from "@/lib/schedule/events";
 import { toDateKey } from "@/lib/dates";
 import { YearList } from "@/components/year-list";
+import { Anniversaries } from "@/components/anniversaries";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,12 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
   const tasks = isDbConfigured() ? await listYearTasks(year).catch(() => []) : [];
   const done = tasks.filter((t) => t.status === "done").length;
   const total = tasks.filter((t) => t.status !== "dropped").length;
+  const anniversaries: EventOccurrence[] = isDbConfigured()
+    ? (await listOccurrences(`${year}-01-01`, `${year}-12-31`).catch(() => [])).filter(
+        (o) => o.event.category === "기념일",
+      )
+    : [];
+  const today = toDateKey(new Date());
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
@@ -50,6 +58,8 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
       </header>
 
       <YearList year={year} tasks={tasks} readOnly={isReadOnly} />
+
+      <Anniversaries occurrences={anniversaries} today={today} />
     </div>
   );
 }

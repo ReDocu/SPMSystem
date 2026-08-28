@@ -1,19 +1,25 @@
 import Link from "next/link";
-import { formatKoreanDate } from "@/lib/dates";
+import { formatKoreanDate, toDateKey } from "@/lib/dates";
 import { isDbConfigured } from "@/lib/db";
 import { countUnprocessed } from "@/lib/inbox/repo";
 import { resourceTileCounts } from "@/lib/resources/repo";
 import { projectTileCounts } from "@/lib/projects/repo";
+import { scheduleTileCounts, type ScheduleTile } from "@/lib/schedule/repo";
 import { QuickCapture } from "@/components/quick-capture";
 
 export const dynamic = "force-dynamic";
 
 const EMPTY_PROJECT_TILE = { activeCount: 0, recent: null, hasOverdue: false };
+const EMPTY_SCHEDULE_TILE: ScheduleTile = { remainingToday: 0, nextEvent: null, hasOverdue: false };
+
+const toTime = (min: number) =>
+  `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
 
 // 메인 런처 — 사이드바 없음(관문 역할)
 export default async function LauncherPage() {
+  const now = new Date();
   // 타일별로 격리 — 한 타일의 조회 실패가 다른 타일까지 0으로 만들면 안 된다
-  const [inboxCount, resourceCounts, projectCounts] = isDbConfigured()
+  const [inboxCount, resourceCounts, projectCounts, scheduleCounts] = isDbConfigured()
     ? await Promise.all([
         countUnprocessed().catch((error) => {
           console.error("런처 인박스 카운트 실패:", error);
@@ -27,11 +33,22 @@ export default async function LauncherPage() {
           console.error("런처 프로젝트 타일 실패:", error);
           return EMPTY_PROJECT_TILE;
         }),
+        scheduleTileCounts(toDateKey(now), now.getHours() * 60 + now.getMinutes()).catch((error) => {
+          console.error("런처 일정 타일 실패:", error);
+          return EMPTY_SCHEDULE_TILE;
+        }),
       ])
-    : [0, { weekCount: 0, ideaCount: 0 }, EMPTY_PROJECT_TILE];
+    : [0, { weekCount: 0, ideaCount: 0 }, EMPTY_PROJECT_TILE, EMPTY_SCHEDULE_TILE];
 
   const TILES = [
-    { href: "/schedule", title: "일정", main: "오늘 남은 —", sub: "기록을 시작해보세요" },
+    {
+      href: "/schedule",
+      title: `일정${scheduleCounts.hasOverdue ? " 🔴" : ""}`,
+      main: `오늘 남은 ${scheduleCounts.remainingToday}`,
+      sub: scheduleCounts.nextEvent
+        ? `${toTime(scheduleCounts.nextEvent.startMin)} ${scheduleCounts.nextEvent.title}`
+        : "기록을 시작해보세요",
+    },
     {
       href: "/projects",
       title: `프로젝트${projectCounts.hasOverdue ? " 🔴" : ""}`,

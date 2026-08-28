@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isDbConfigured } from "@/lib/db";
+import { isUuid } from "@/lib/ids";
 import { restoreItem, type InboxItem, type InboxSource } from "@/lib/inbox/repo";
 
 const SOURCES: InboxSource[] = ["web", "bookmarklet", "mobile"];
@@ -11,6 +12,7 @@ export async function POST(
 ) {
   if (!isDbConfigured()) return NextResponse.json({ error: "DB 미설정" }, { status: 503 });
   const { id } = await params;
+  if (!isUuid(id)) return NextResponse.json({ error: "복원 대상이 없습니다" }, { status: 404 });
 
   let body: Partial<InboxItem>;
   try {

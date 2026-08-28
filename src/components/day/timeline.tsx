@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseCapture } from "@/lib/capture/parse";
 import { mergeAdjacentLogs, type MergedBlock } from "@/lib/schedule/blocks";
 import { formatTimeRange } from "@/lib/capture/format";
 import type { TimeLog } from "@/lib/schedule/repo";
+import { UndoToasts, useUndoQueue, type UndoEntry } from "@/components/undo-toast";
 
 const HOUR_PX = 40; // 1시간 = 40px (h-10)
 const COLLAPSE_END = 6 * 60; // 00–06 기본 접힘
@@ -24,9 +25,7 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
   const [draft, setDraft] = useState<Draft | null>(null);
   const [editing, setEditing] = useState<{ block: MergedBlock; text: string } | null>(null);
   const [nowMin, setNowMin] = useState<number | null>(null);
-  // 연속 삭제해도 각 블록의 되돌리기를 보존 (인박스·자료 목록과 동일한 큐 방식)
-  const [undoQueue, setUndoQueue] = useState<{ logs: TimeLog[]; label: string }[]>([]);
-  const undoTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const undoQueue = useUndoQueue<TimeLog[]>();
 
   // "3-5 새벽 작업"처럼 접힌 구간에 블록이 생기면 자동으로 펼친다 (렌더 중 상태 보정 패턴)
   const [prevHasEarlyLogs, setPrevHasEarlyLogs] = useState(hasEarlyLogs);
@@ -104,28 +103,18 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
     }).catch(() => null);
     if (!res?.ok) return;
     setEditing(null);
-    const key = editing.block.logIds[0];
-    setUndoQueue((prev) => [...prev, { logs: deletedLogs, label: editing.block.content }]);
-    undoTimers.current.set(
-      key,
-      setTimeout(() => {
-        setUndoQueue((prev) => prev.filter((e) => e.logs[0]?.id !== key));
-        undoTimers.current.delete(key);
-      }, 5000),
-    );
+    undoQueue.push({
+      key: editing.block.logIds[0],
+      label: editing.block.content,
+      payload: deletedLogs,
+    });
     router.refresh();
   };
 
-  const handleUndo = async (entry: { logs: TimeLog[]; label: string }) => {
-    const key = entry.logs[0]?.id;
-    if (key) {
-      const timer = undoTimers.current.get(key);
-      if (timer) clearTimeout(timer);
-      undoTimers.current.delete(key);
-    }
-    setUndoQueue((prev) => prev.filter((e) => e !== entry));
+  const handleUndo = async (entry: UndoEntry<TimeLog[]>) => {
+    const logs = undoQueue.take(entry);
     await Promise.all(
-      entry.logs.map((l) =>
+      logs.map((l) =>
         fetch("/api/timelogs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -250,24 +239,7 @@ export function Timeline({ date, logs, isToday }: { date: string; logs: TimeLog[
         </div>
       )}
 
-      {undoQueue.length > 0 && (
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2">
-          {undoQueue.map((entry) => (
-            <div
-              key={entry.logs[0]?.id ?? entry.label}
-              className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs shadow-lg"
-            >
-              <span className="max-w-56 truncate text-muted">삭제됨 — {entry.label}</span>
-              <button
-                onClick={() => handleUndo(entry)}
-                className="font-medium text-ink underline underline-offset-2"
-              >
-                되돌리기
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <UndoToasts entries={undoQueue.entries} onUndo={handleUndo} />
     </section>
   );
 }

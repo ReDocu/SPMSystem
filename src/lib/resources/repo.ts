@@ -44,7 +44,8 @@ function isBlockedHost(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return true;
   if (PRIVATE_IPV4.test(host)) return true;
-  if (host === "::1" || host.startsWith("fe80:") || host.startsWith("fc") || host.startsWith("fd")) return true;
+  // IPv6 판정은 콜론이 있을 때만 — fcbarcelona.com 같은 도메인을 잡으면 안 된다
+  if (host.includes(":") && (host === "::1" || /^fe80:|^f[cd]/.test(host))) return true;
   return false;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 export interface UndoEntry<T> {
   key: string;
@@ -15,7 +15,7 @@ export function useUndoQueue<T>() {
   const [entries, setEntries] = useState<UndoEntry<T>[]>([]);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
-  const push = (entry: UndoEntry<T>) => {
+  const push = useCallback((entry: UndoEntry<T>) => {
     setEntries((prev) => [...prev, entry]);
     timers.current.set(
       entry.key,
@@ -24,18 +24,18 @@ export function useUndoQueue<T>() {
         timers.current.delete(entry.key);
       }, UNDO_MS),
     );
-  };
+  }, []);
 
   /** 되돌리기 선택 — 타이머 해제 후 payload를 돌려준다. */
-  const take = (entry: UndoEntry<T>) => {
+  const take = useCallback((entry: UndoEntry<T>) => {
     const timer = timers.current.get(entry.key);
     if (timer) clearTimeout(timer);
     timers.current.delete(entry.key);
     setEntries((prev) => prev.filter((e) => e.key !== entry.key));
     return entry.payload;
-  };
+  }, []);
 
-  return { entries, push, take };
+  return useMemo(() => ({ entries, push, take }), [entries, push, take]);
 }
 
 export function UndoToasts<T>({

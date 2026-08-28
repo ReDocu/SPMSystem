@@ -2,13 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element -- 썸네일·파비콘은 외부 URL 직접 참조 (서버 복사 금지 원칙) */
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEFAULT_CATEGORIES, type Resource } from "@/lib/resources/model";
 import { faviconUrl, hostOf } from "@/lib/resources/meta";
-
-const UNDO_MS = 5000;
+import { UndoToasts, useUndoQueue, type UndoEntry } from "@/components/undo-toast";
 
 // 사이트 카드 그리드 + 아이디어 리스트. 삭제는 즉시 + 5초 되돌리기, 카테고리는 카드에서 후처리
 export function ResourceList({
@@ -21,10 +20,8 @@ export function ResourceList({
   hasSearch: boolean;
 }) {
   const router = useRouter();
-  // 연속 삭제해도 각 항목의 되돌리기를 보존한다 (단일 슬롯이면 앞 항목의 복구 경로가 사라진다)
-  const [undoQueue, setUndoQueue] = useState<Resource[]>([]);
+  const undoQueue = useUndoQueue<Resource>();
   const [error, setError] = useState<string | null>(null);
-  const undoTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const handleDelete = async (item: Resource) => {
     setError(null);
@@ -34,22 +31,12 @@ export function ResourceList({
       return;
     }
     const { item: deleted } = (await res.json()) as { item: Resource };
-    setUndoQueue((prev) => [...prev, deleted]);
-    undoTimers.current.set(
-      deleted.id,
-      setTimeout(() => {
-        setUndoQueue((prev) => prev.filter((r) => r.id !== deleted.id));
-        undoTimers.current.delete(deleted.id);
-      }, UNDO_MS),
-    );
+    undoQueue.push({ key: deleted.id, label: deleted.title, payload: deleted });
     router.refresh();
   };
 
-  const handleUndo = async (restoring: Resource) => {
-    const timer = undoTimers.current.get(restoring.id);
-    if (timer) clearTimeout(timer);
-    undoTimers.current.delete(restoring.id);
-    setUndoQueue((prev) => prev.filter((r) => r.id !== restoring.id));
+  const handleUndo = async (entry: UndoEntry<Resource>) => {
+    const restoring = undoQueue.take(entry);
     const res = await fetch(`/api/resources/${restoring.id}/restore`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,24 +165,7 @@ export function ResourceList({
         </div>
       )}
 
-      {undoQueue.length > 0 && (
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2">
-          {undoQueue.map((deleted) => (
-            <div
-              key={deleted.id}
-              className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-xs shadow-lg"
-            >
-              <span className="max-w-56 truncate text-muted">삭제됨 — {deleted.title}</span>
-              <button
-                onClick={() => handleUndo(deleted)}
-                className="font-medium text-ink underline underline-offset-2"
-              >
-                되돌리기
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <UndoToasts entries={undoQueue.entries} onUndo={handleUndo} />
     </>
   );
 }
