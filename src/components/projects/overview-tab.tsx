@@ -11,6 +11,7 @@ interface OverviewProps {
   time: { totalMin: number; weekMin: number };
   milestones: Milestone[];
   yearGoals: { id: string; title: string; status: string; targetYear: number }[];
+  platforms?: { id: string; name: string }[];
 }
 
 const hours = (min: number) => (Number.isInteger(min / 60) ? `${min / 60}h` : `${(min / 60).toFixed(1)}h`);
@@ -22,10 +23,12 @@ const field = (label: string, value: string | null) => (
   </p>
 );
 
-// 개요 탭 — 게이트에서 채운 것들이 사는 곳 (§5-2). 생애 타임라인은 v0.5
-export function OverviewTab({ project, time, milestones, yearGoals }: OverviewProps) {
-  const [editOpen, setEditOpen] = useState(false);
+// 개요 탭 — 게이트에서 채운 것들이 사는 곳 (§5-2)
+export function OverviewTab({ project, time, milestones, yearGoals, platforms = [] }: OverviewProps) {
+  const [editGate, setEditGate] = useState<"G1" | "G3" | null>(null);
   const fill = kickoffFill(project);
+  // live 이후엔 G3 필드(플랫폼·배포 URL)를 나중에 채울 경로가 필요하다 (ISSUE-04의 실제 해결)
+  const canEditG3 = ["live", "completed", "dropped"].includes(project.status);
   const nextMilestones = milestones.filter((m) => m.dueDate).slice(0, 2);
 
   return (
@@ -36,7 +39,7 @@ export function OverviewTab({ project, time, milestones, yearGoals }: OverviewPr
             킥오프 <span className="font-normal text-muted">({fill.filled}/{fill.total} 채움)</span>
           </h2>
           <button
-            onClick={() => setEditOpen(true)}
+            onClick={() => setEditGate("G1")}
             className="rounded border border-line px-2 py-0.5 text-[11px] text-muted hover:text-ink"
           >
             게이트 카드 다시 열기
@@ -49,7 +52,17 @@ export function OverviewTab({ project, time, milestones, yearGoals }: OverviewPr
       </section>
 
       <section className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-4">
-        <h2 className="mb-1 text-[13px] font-bold">스택 · 링크</h2>
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-[13px] font-bold">스택 · 링크</h2>
+          {canEditG3 && (
+            <button
+              onClick={() => setEditGate("G3")}
+              className="rounded border border-line px-2 py-0.5 text-[11px] text-muted hover:text-ink"
+            >
+              G3 카드 다시 열기
+            </button>
+          )}
+        </div>
         {field("기술스택", project.techStack?.join(" · ") ?? null)}
         <p className="flex gap-3 text-xs">
           {project.repoUrl ? (
@@ -102,7 +115,15 @@ export function OverviewTab({ project, time, milestones, yearGoals }: OverviewPr
         ))}
       </section>
 
-      {editOpen && <GateCard project={project} to={null} onClose={() => setEditOpen(false)} />}
+      {editGate && (
+        <GateCard
+          project={project}
+          to={null}
+          reopenGate={editGate}
+          platforms={platforms}
+          onClose={() => setEditGate(null)}
+        />
+      )}
     </div>
   );
 }

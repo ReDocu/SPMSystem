@@ -15,7 +15,7 @@ export type { KanbanTask, Milestone, Project, ProjectDocument, ProjectStatus };
 
 const CREATED_ISO = `to_char(created_at at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z'`;
 const PROJECT_FIELDS = `id, title, status, description, purpose, target_user, scope_in, scope_out,
-  tech_stack, repo_url, deploy_url, progress, color, ${CREATED_ISO} as created_at`;
+  tech_stack, repo_url, deploy_url, platform_id, progress, color, ${CREATED_ISO} as created_at`;
 
 interface ProjectRow {
   id: string;
@@ -29,6 +29,7 @@ interface ProjectRow {
   tech_stack: string[] | null;
   repo_url: string | null;
   deploy_url: string | null;
+  platform_id: string | null;
   progress: string | number;
   color: string | null;
   created_at: string;
@@ -46,6 +47,7 @@ const toProject = (r: ProjectRow): Project => ({
   techStack: r.tech_stack,
   repoUrl: r.repo_url,
   deployUrl: r.deploy_url,
+  platformId: r.platform_id,
   progress: Math.round(Number(r.progress)),
   color: r.color,
   createdAt: r.created_at,
@@ -152,6 +154,7 @@ export interface ProjectPatch {
   techStack?: string[] | null;
   repoUrl?: string | null;
   deployUrl?: string | null;
+  platformId?: string | null;
 }
 
 const PATCH_COLUMNS: Record<keyof ProjectPatch, string> = {
@@ -164,6 +167,7 @@ const PATCH_COLUMNS: Record<keyof ProjectPatch, string> = {
   techStack: "tech_stack",
   repoUrl: "repo_url",
   deployUrl: "deploy_url",
+  platformId: "platform_id",
 };
 
 export async function updateProject(id: string, patch: ProjectPatch): Promise<Project | null> {
@@ -487,6 +491,44 @@ export async function restoreDocument(doc: ProjectDocument): Promise<ProjectDocu
     [doc.id, userId, doc.projectId, doc.title, doc.content, doc.templateType, doc.updatedAt],
   );
   return r.rows.length > 0 ? toDoc(r.rows[0]) : doc;
+}
+
+// ---------- 생애 타임라인 재료 (§5.5 — v0.3부터 쌓은 로그를 그린다) ----------
+
+export interface LifelineData {
+  events: { toStatus: string; occurredAt: string }[];
+  milestones: { title: string; date: string }[];
+  deployments: { title: string; date: string }[];
+}
+
+export async function lifelineData(projectId: string): Promise<LifelineData> {
+  const userId = await getUserId();
+  const pool = getPool();
+  const [events, ms, deploys] = await Promise.all([
+    pool.query<{ to_status: string; occurred_at: string }>(
+      `select to_status, (occurred_at at time zone 'Asia/Seoul')::date::text as occurred_at
+       from project_events
+       where user_id = $1 and project_id = $2 and type = 'transition' and to_status is not null
+       order by project_events.occurred_at`,
+      [userId, projectId],
+    ),
+    pool.query<{ title: string; date: string }>(
+      `select title, due_date::text as date from milestones
+       where user_id = $1 and project_id = $2 and due_date is not null`,
+      [userId, projectId],
+    ),
+    pool.query<{ title: string; date: string }>(
+      `select d.version as title, (d.deployed_at at time zone 'Asia/Seoul')::date::text as date
+       from deployments d join environments e on e.id = d.environment_id
+       where d.user_id = $1 and e.project_id = $2`,
+      [userId, projectId],
+    ),
+  ]);
+  return {
+    events: events.rows.map((r) => ({ toStatus: r.to_status, occurredAt: r.occurred_at })),
+    milestones: ms.rows,
+    deployments: deploys.rows,
+  };
 }
 
 // ---------- 집계 · 연결 ----------

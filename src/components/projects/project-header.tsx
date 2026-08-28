@@ -21,7 +21,13 @@ const NEXT_LABELS: Partial<Record<ProjectStatus, string>> = {
 };
 
 // 상세 헤더 — 색 도트·제목·상태 + 전이 버튼 (§5-2 ①). 게이트가 있으면 카드, 없으면 즉시 전이
-export function ProjectHeader({ project }: { project: Project }) {
+export function ProjectHeader({
+  project,
+  platforms = [],
+}: {
+  project: Project;
+  platforms?: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [gateTo, setGateTo] = useState<ProjectStatus | null>(null);
   const [error, setError] = useState(false);
@@ -78,7 +84,9 @@ export function ProjectHeader({ project }: { project: Project }) {
         </button>
       ))}
 
-      {gateTo && <GateCard project={project} to={gateTo} onClose={() => setGateTo(null)} />}
+      {gateTo && (
+        <GateCard project={project} to={gateTo} platforms={platforms} onClose={() => setGateTo(null)} />
+      )}
     </header>
   );
 }

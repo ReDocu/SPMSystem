@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/ids";
 import type { ProjectPatch } from "@/lib/projects/repo";
 
 const TEXT_KEYS = [
@@ -22,6 +23,9 @@ export function parseProjectPatch(body: Record<string, unknown>): ProjectPatch {
     } else {
       patch[key] = value || null;
     }
+  }
+  if (body.platformId !== undefined) {
+    patch.platformId = isUuid(body.platformId) ? (body.platformId as string) : null;
   }
   if (body.techStack !== undefined) {
     patch.techStack = Array.isArray(body.techStack)

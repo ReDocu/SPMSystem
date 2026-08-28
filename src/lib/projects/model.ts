@@ -23,6 +23,7 @@ export interface Project {
   techStack: string[] | null;
   repoUrl: string | null;
   deployUrl: string | null;
+  platformId: string | null;
   progress: number;
   color: string | null;
   createdAt: string;
@@ -100,6 +101,17 @@ export function gateOf(from: ProjectStatus, to: ProjectStatus): "G1" | "G2" | "G
   if (from === "active" && to === "live") return "G3";
   return null;
 }
+
+// 생애 타임라인 상태 구간 색 (§5.5 — 구간 색은 상태별 고정)
+export const STATUS_COLORS: Record<string, string> = {
+  idea: "#B0AFAF",
+  planning: "#F08C00",
+  active: "#1971C2",
+  live: "#2F9E44",
+  paused: "#9C36B5",
+  completed: "#495057",
+  dropped: "#E03131",
+};
 
 // 프로젝트 색상 자동 배정 팔레트 (G2 — 생성 순서대로 순환)
 export const PROJECT_COLORS = [

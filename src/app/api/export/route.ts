@@ -15,6 +15,11 @@ const TABLES: Record<string, string> = {
   documents: "created_at",
   project_events: "occurred_at",
   schedules: "created_at",
+  platforms: "created_at",
+  environments: "created_at",
+  deployments: "created_at",
+  checklist_templates: "created_at",
+  costs: "created_at",
 };
 
 export async function GET() {

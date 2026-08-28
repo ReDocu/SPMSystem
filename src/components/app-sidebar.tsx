@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// v0.5: 4개 영역 전부 노출 (ISSUE-11 — 더 이상 숨길 미구현 영역 없음)
 const NAV_ITEMS = [
   { href: "/schedule", label: "일정", match: /^\/schedule/ },
   { href: "/projects", label: "프로젝트", match: /^\/projects/ },
-  { href: "/ops", label: "운영·배포", match: /^\/ops/, disabled: true },
+  { href: "/ops", label: "운영·배포", match: /^\/ops/ },
   { href: "/resources", label: "자료수집", match: /^\/resources/ },
 ] as const;
-
-// 미구현 버전의 메뉴는 숨긴다 (ISSUE-11) — v0.3: 운영·배포(v0.5)만 숨김
 export function AppSidebar({ inboxCount = 0 }: { inboxCount?: number }) {
   const pathname = usePathname();
 
@@ -24,7 +23,7 @@ export function AppSidebar({ inboxCount = 0 }: { inboxCount?: number }) {
       <Link href="/" className="px-3 pb-4 pt-1 text-[15px] font-bold tracking-widest">
         SPM
       </Link>
-      {NAV_ITEMS.filter((item) => !("disabled" in item && item.disabled)).map((item) => (
+      {NAV_ITEMS.map((item) => (
         <Link key={item.href} href={item.href} className={itemClass(item.match.test(pathname))}>
           {item.label}
         </Link>

@@ -7,13 +7,15 @@ import { gateOf, type Project, type ProjectStatus } from "@/lib/projects/model";
 interface GateCardProps {
   project: Project;
   to: ProjectStatus | null; // null이면 전이 없이 필드만 수정 ([게이트 카드 다시 열기])
+  reopenGate?: "G1" | "G2" | "G3"; // 다시 열기 시 어느 게이트의 필드인지 (기본 G1 킥오프)
+  platforms?: { id: string; name: string }[]; // G3 플랫폼 선택 = 카탈로그 참조 (§3.1)
   onClose: () => void;
 }
 
 // 게이트 카드 — 유일하게 허용된 모달 (§5-6). 소프트 강제: 건너뛰어도 전이된다
-export function GateCard({ project, to, onClose }: GateCardProps) {
+export function GateCard({ project, to, reopenGate = "G1", platforms = [], onClose }: GateCardProps) {
   const router = useRouter();
-  const gate = to ? gateOf(project.status, to) : "G1"; // 다시 열기는 킥오프(G1) 필드
+  const gate = to ? gateOf(project.status, to) : reopenGate;
   const [fields, setFields] = useState({
     purpose: project.purpose ?? "",
     targetUser: project.targetUser ?? "",
@@ -22,6 +24,7 @@ export function GateCard({ project, to, onClose }: GateCardProps) {
     repoUrl: project.repoUrl ?? "",
     techStack: (project.techStack ?? []).join(", "),
     deployUrl: project.deployUrl ?? "",
+    platformId: project.platformId ?? "",
     firstTasks: "",
     milestoneTitle: "",
     milestoneDue: "",
@@ -47,7 +50,7 @@ export function GateCard({ project, to, onClose }: GateCardProps) {
         techStack: fields.techStack.split(",").map((s) => s.trim()).filter(Boolean),
       };
     }
-    return { deployUrl: fields.deployUrl };
+    return { deployUrl: fields.deployUrl, platformId: fields.platformId || null };
   };
 
   const submit = async (withFields: boolean) => {
@@ -127,7 +130,7 @@ export function GateCard({ project, to, onClose }: GateCardProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-sm font-bold">
-          {to ? `${to}로 전이 — ${titles[gate ?? "G1"]}` : `게이트 카드 — ${titles.G1}`}
+          {to ? `${to}로 전이 — ${titles[gate ?? "G1"]}` : `게이트 카드 — ${titles[gate ?? "G1"]}`}
         </h2>
 
         {gate === "G1" && (
@@ -169,7 +172,27 @@ export function GateCard({ project, to, onClose }: GateCardProps) {
             </p>
           </>
         )}
-        {gate === "G3" && input("배포 URL", "deployUrl", "https://…")}
+        {gate === "G3" && (
+          <>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-muted">배포 플랫폼 (카탈로그)</span>
+              <select
+                value={fields.platformId}
+                onChange={(e) => setFields({ ...fields, platformId: e.target.value })}
+                className="rounded-md border border-line bg-surface px-2.5 py-1.5 outline-none focus:border-primary"
+              >
+                <option value="">선택 안 함</option>
+                {platforms.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </label>
+            {input("배포 URL", "deployUrl", "https://…")}
+            <p className="text-[11px] text-muted">
+              전이 후 운영 › 환경에서 prod 환경을 등록하세요 — 운영 대시보드의 살림살이가 됩니다
+            </p>
+          </>
+        )}
 
         {error && <p className="text-[11px] text-muted">저장하지 못했습니다 — 다시 시도해주세요</p>}
 
