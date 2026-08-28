@@ -7,8 +7,12 @@
 
 ```bash
 npm install
-cp .env.example .env.local          # DATABASE_URL, SPM_PIN, SPM_SECRET
-psql "$DATABASE_URL" -f db/migrations/0001_v01_init.sql
+cp .env.example .env.local           # DATABASE_URL, SPM_PIN, SPM_SECRET
+
+# DB: Docker Desktop (WSL2 필요)
+docker compose up -d                 # postgres:17 → localhost:5432/spm
+docker compose exec -T db psql -U postgres -d spm < db/migrations/0001_v01_init.sql
+
 npm run dev                          # http://localhost:3000
 npm test                             # vitest
 npm run build
