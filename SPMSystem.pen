@@ -1611,7 +1611,7 @@
                           "id": "QBFCk",
                           "name": "Auth Secure",
                           "fill": "$success",
-                          "content": "● SECURE SIGN IN",
+                          "content": "● PIN LOCK",
                           "fontFamily": "$mono",
                           "fontSize": 8,
                           "fontWeight": "700"
@@ -1633,7 +1633,7 @@
                           "fill": "$muted",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "등록된 Google 계정으로 로그인하면 마지막으로 보던 화면에서 이어집니다.",
+                          "content": "PIN을 입력하면 마지막으로 보던 화면에서 이어집니다.",
                           "lineHeight": 1.5,
                           "fontFamily": "$font",
                           "fontSize": 11,
@@ -1643,48 +1643,58 @@
                     },
                     {
                       "type": "frame",
-                      "id": "szaq3",
-                      "name": "Google Login Button",
+                      "id": "WCDPx",
+                      "name": "Pin Row",
                       "width": "fill_container",
-                      "height": 52,
-                      "fill": "$primary",
-                      "cornerRadius": 6,
-                      "gap": 11,
-                      "justifyContent": "center",
-                      "alignItems": "center",
+                      "gap": 10,
                       "children": [
                         {
                           "type": "frame",
-                          "id": "PZ43m",
-                          "name": "Google G",
-                          "width": 24,
-                          "height": 24,
+                          "id": "QDqSw",
+                          "name": "Pin Input",
+                          "width": "fill_container",
+                          "height": 52,
                           "fill": "$surface",
-                          "cornerRadius": 999,
+                          "cornerRadius": 6,
+                          "stroke": "$line",
                           "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "text",
-                              "id": "NqhWn",
-                              "name": "Google G Text",
-                              "fill": "$primary",
-                              "content": "G",
-                              "fontFamily": "$font",
-                              "fontSize": 11,
-                              "fontWeight": "750"
+                              "id": "bKsJa",
+                              "name": "Pin Placeholder",
+                              "fill": "$muted",
+                              "content": "· · · ·",
+                              "fontFamily": "$mono",
+                              "fontSize": 14,
+                              "fontWeight": "normal",
+                              "letterSpacing": 4
                             }
                           ]
                         },
                         {
-                          "type": "text",
-                          "id": "vMIki",
-                          "name": "Google Login Label",
-                          "fill": "$surface",
-                          "content": "Google로 계속하기",
-                          "fontFamily": "$font",
-                          "fontSize": 12,
-                          "fontWeight": "650"
+                          "type": "frame",
+                          "id": "Sz3Ef",
+                          "name": "Pin Submit",
+                          "width": 96,
+                          "height": 52,
+                          "fill": "$primary",
+                          "cornerRadius": 6,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "HsBtx",
+                              "name": "Pin Submit Label",
+                              "fill": "$surface",
+                              "content": "열기",
+                              "fontFamily": "$font",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1733,7 +1743,7 @@
                               "fill": "$muted",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "content": "회원가입 없이 허용된 계정만 접근할 수 있습니다.",
+                              "content": "회원가입·계정 없이 PIN 하나로 잠급니다. 미설정 시 바로 진입합니다.",
                               "fontFamily": "$font",
                               "fontSize": 9,
                               "fontWeight": "450"
@@ -1785,7 +1795,7 @@
                               "id": "RDht1",
                               "name": "Auth Detail Value 0",
                               "fill": "$ink",
-                              "content": "Supabase 암호화 세션",
+                              "content": "로컬 Postgres — 데이터는 내 머신에",
                               "fontFamily": "$font",
                               "fontSize": 9,
                               "fontWeight": "500"
@@ -1869,7 +1879,7 @@
                               "id": "Wuc9t",
                               "name": "Auth Detail Value 2",
                               "fill": "$ink",
-                              "content": "설정에서 로그아웃",
+                              "content": "설정에서 잠금 해제",
                               "fontFamily": "$font",
                               "fontSize": 9,
                               "fontWeight": "500"
@@ -1900,7 +1910,7 @@
                           "id": "cBv4n",
                           "name": "Auth Service Status",
                           "fill": "$success",
-                          "content": "● 인증 서비스 정상",
+                          "content": "● 서명 쿠키 세션 · 30일 유지",
                           "fontFamily": "$font",
                           "fontSize": 8,
                           "fontWeight": "550"
@@ -10630,7 +10640,7 @@
                           "id": "Je2gM",
                           "name": "Task Title done0",
                           "fill": "$ink",
-                          "content": "Google 로그인",
+                          "content": "PIN 잠금",
                           "fontFamily": "$font",
                           "fontSize": 12,
                           "fontWeight": "650"
@@ -19504,7 +19514,7 @@
                                   "id": "s4NOC1",
                                   "name": "Resource Card Memo 02",
                                   "fill": "$muted",
-                                  "content": "Google OAuth 설정",
+                                  "content": "pg_dump 백업 스크립트",
                                   "fontFamily": "$font",
                                   "fontSize": 9,
                                   "fontWeight": "450"
@@ -19974,7 +19984,7 @@
                       "id": "u8We9",
                       "name": "Settings Title 0",
                       "fill": "$ink",
-                      "content": "계정",
+                      "content": "잠금",
                       "fontFamily": "$font",
                       "fontSize": 13,
                       "fontWeight": "650"
@@ -19984,7 +19994,7 @@
                       "id": "DuNtN",
                       "name": "Settings Description 0",
                       "fill": "$muted",
-                      "content": "Google 연결됨 · solo@spm.app",
+                      "content": "PIN 설정됨 · 세션 30일",
                       "fontFamily": "$font",
                       "fontSize": 10,
                       "fontWeight": "450"
@@ -20009,7 +20019,7 @@
                       "id": "vw0Kg",
                       "name": "Settings Action Label 0",
                       "fill": "$ink",
-                      "content": "로그아웃",
+                      "content": "잠금 해제",
                       "fontFamily": "$font",
                       "fontSize": 9,
                       "fontWeight": "600"
