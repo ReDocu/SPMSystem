@@ -1,5 +1,11 @@
 import { getPool } from "@/lib/db";
 import { parseCapture } from "@/lib/capture/parse";
+import { fetchPageMeta } from "@/lib/resources/repo";
+import { FALLBACK_CATEGORY } from "@/lib/resources/model";
+import { hostOf } from "@/lib/resources/meta";
+import { getUserId } from "@/lib/user";
+
+export { getUserId } from "@/lib/user";
 
 export type InboxSource = "web" | "bookmarklet" | "mobile";
 
@@ -31,19 +37,6 @@ function toItem(row: InboxRow): InboxItem {
     guessedType: row.guessed_type,
     createdAt: row.created_at,
   };
-}
-
-// 1인 도구 — users의 유일한 행 (기획서 §7 규칙 2: user_id는 유지하되 조회는 단일)
-let cachedUserId: string | undefined;
-
-export async function getUserId(): Promise<string> {
-  if (cachedUserId) return cachedUserId;
-  const r = await getPool().query<{ id: string }>(
-    "select id from users order by created_at limit 1",
-  );
-  if (r.rows.length === 0) throw new Error("users 테이블이 비어 있습니다 — 마이그레이션 확인");
-  cachedUserId = r.rows[0].id;
-  return cachedUserId;
 }
 
 export async function listUnprocessed(): Promise<InboxItem[]> {
@@ -168,6 +161,70 @@ export async function processAsTimelog(
     );
     await client.query("commit");
     return { logId: log.rows[0].id };
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * 항목을 자료수집으로 전환한다 (상세기획-자료수집 §2.4·R3).
+ * URL 추정 → 사이트(기본 카테고리 '기타', og 메타 자동 추출) / 그 외 → 아이디어.
+ */
+export async function processAsResource(id: string): Promise<{ resourceId: string } | null> {
+  const userId = await getUserId();
+  const pool = getPool();
+  const found = await pool.query<{ raw_text: string; created_at: string }>(
+    `select raw_text, ${CREATED_ISO} as created_at from inbox_items
+     where id = $1 and user_id = $2 and processed_at is null`,
+    [id, userId],
+  );
+  if (found.rows.length === 0) return null;
+  const guess = parseCapture(found.rows[0].raw_text, new Date(found.rows[0].created_at));
+
+  // 외부 메타 fetch는 트랜잭션 밖에서 (커넥션 점유 방지)
+  const meta = guess.url ? await fetchPageMeta(guess.url) : null;
+
+  const client = await pool.connect();
+  try {
+    await client.query("begin");
+    const marked = await client.query(
+      `update inbox_items set processed_at = now()
+       where id = $1 and user_id = $2 and processed_at is null`,
+      [id, userId],
+    );
+    if (marked.rowCount === 0) {
+      await client.query("rollback");
+      return null;
+    }
+    // 메타 추출이 실패하면 fetchPageMeta는 호스트명을 돌려준다 — 그때는 북마클릿이
+    // 캡처해온 문서 제목(guess.title)이 더 낫다
+    const host = guess.url ? hostOf(guess.url) : null;
+    const metaTitle = meta && meta.title !== host ? meta.title : null;
+    const capturedTitle = guess.title && guess.title !== guess.url ? guess.title : null;
+    const siteTitle = metaTitle ?? capturedTitle ?? meta?.title ?? guess.url;
+    const inserted = guess.url
+      ? await client.query<{ id: string }>(
+          `insert into resources (user_id, type, url, title, memo, thumbnail, category)
+           values ($1, 'site', $2, $3, $4, $5, $6) returning id`,
+          [
+            userId,
+            guess.url,
+            siteTitle,
+            metaTitle && capturedTitle ? capturedTitle : null,
+            meta?.thumbnail ?? null,
+            FALLBACK_CATEGORY,
+          ],
+        )
+      : await client.query<{ id: string }>(
+          `insert into resources (user_id, type, title, content)
+           values ($1, 'idea', $2, $3) returning id`,
+          [userId, guess.title.split("\n")[0].slice(0, 80) || found.rows[0].raw_text.slice(0, 80), found.rows[0].raw_text],
+        );
+    await client.query("commit");
+    return { resourceId: inserted.rows[0].id };
   } catch (error) {
     await client.query("rollback");
     throw error;

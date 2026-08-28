@@ -1,3 +1,5 @@
+import { BookmarkletGuide } from "@/components/bookmarklet-guide";
+
 // 설정 — JSON export는 v0.1부터 필수 (기획서 §8.2: 탈출 가능 원칙, 백업은 본인 책임)
 export default function SettingsPage() {
   const rows = [
@@ -18,6 +20,13 @@ export default function SettingsPage() {
           <span className="text-muted">{row.control}</span>
         </div>
       ))}
+      <div className="flex items-center gap-4 border-b border-line/50 py-4 text-sm">
+        <span className="w-28 flex-none font-bold">북마클릿</span>
+        <BookmarkletGuide
+          token={process.env.SPM_CAPTURE_TOKEN ?? null}
+          pinEnabled={Boolean(process.env.SPM_PIN)}
+        />
+      </div>
       <div className="flex items-center gap-4 py-4 text-sm">
         <span className="w-28 flex-none font-bold">백업</span>
         <a

@@ -1,5 +1,5 @@
 import { getPool } from "@/lib/db";
-import { getUserId } from "@/lib/inbox/repo";
+import { getUserId } from "@/lib/user";
 
 export interface TimeLog {
   id: string;

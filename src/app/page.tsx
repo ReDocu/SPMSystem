@@ -2,25 +2,39 @@ import Link from "next/link";
 import { formatKoreanDate } from "@/lib/dates";
 import { isDbConfigured } from "@/lib/db";
 import { countUnprocessed } from "@/lib/inbox/repo";
+import { resourceTileCounts } from "@/lib/resources/repo";
 import { QuickCapture } from "@/components/quick-capture";
 
 export const dynamic = "force-dynamic";
 
-const TILES = [
-  { href: "/schedule", title: "일정", main: "오늘 남은 —", sub: "기록을 시작해보세요" },
-  { href: "/projects", title: "프로젝트", main: "v0.3 예정", sub: "", disabled: true },
-  { href: "/ops", title: "운영·배포", main: "v0.5 예정", sub: "", disabled: true },
-  { href: "/resources", title: "자료수집", main: "v0.2 예정", sub: "", disabled: true },
-];
-
-// 메인 런처 — 사이드바 없음(관문 역할). 데이터는 GET /api/summary 1회 (v0.1은 스텁)
+// 메인 런처 — 사이드바 없음(관문 역할)
 export default async function LauncherPage() {
-  const inboxCount = isDbConfigured()
-    ? await countUnprocessed().catch((error) => {
-        console.error("런처 인박스 카운트 실패:", error);
-        return 0;
-      })
-    : 0;
+  // 타일별로 격리 — resources 조회 실패가 인박스 카운트까지 0으로 만들면 안 된다
+  const [inboxCount, resourceCounts] = isDbConfigured()
+    ? await Promise.all([
+        countUnprocessed().catch((error) => {
+          console.error("런처 인박스 카운트 실패:", error);
+          return 0;
+        }),
+        resourceTileCounts().catch((error) => {
+          console.error("런처 자료수집 타일 실패:", error);
+          return { weekCount: 0, ideaCount: 0 };
+        }),
+      ])
+    : [0, { weekCount: 0, ideaCount: 0 }];
+
+  const TILES = [
+    { href: "/schedule", title: "일정", main: "오늘 남은 —", sub: "기록을 시작해보세요" },
+    { href: "/projects", title: "프로젝트", main: "v0.3 예정", sub: "", disabled: true },
+    { href: "/ops", title: "운영·배포", main: "v0.5 예정", sub: "", disabled: true },
+    {
+      href: "/resources",
+      title: "자료수집",
+      main: `이번 주 수집 ${resourceCounts.weekCount}`,
+      sub: `아이디어 ${resourceCounts.ideaCount}건`,
+    },
+  ];
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-10 py-12">
       <header className="flex items-center justify-between">

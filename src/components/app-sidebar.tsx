@@ -7,10 +7,10 @@ const NAV_ITEMS = [
   { href: "/schedule", label: "일정", match: /^\/schedule/ },
   { href: "/projects", label: "프로젝트", match: /^\/projects/, disabled: true },
   { href: "/ops", label: "운영·배포", match: /^\/ops/, disabled: true },
-  { href: "/resources", label: "자료수집", match: /^\/resources/, disabled: true },
+  { href: "/resources", label: "자료수집", match: /^\/resources/ },
 ] as const;
 
-// 미구현 버전의 메뉴는 숨긴다 (기획 검수 ISSUE-11) — v0.1은 일정·인박스·설정만 노출
+// 미구현 버전의 메뉴는 숨긴다 (기획 검수 ISSUE-11) — v0.2: 일정·자료수집·인박스·설정 노출
 export function AppSidebar({ inboxCount = 0 }: { inboxCount?: number }) {
   const pathname = usePathname();
 

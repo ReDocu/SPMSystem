@@ -10,6 +10,7 @@ const TABLES: Record<string, string> = {
   time_logs: "created_at",
   daily_notes: "date", // created_at 없음 (unique user_id+date)
   inbox_items: "created_at",
+  resources: "created_at",
 };
 
 export async function GET() {
@@ -19,9 +20,15 @@ export async function GET() {
     const pool = getPool();
     const dump: Record<string, unknown> = {
       exportedAt: new Date().toISOString(),
-      version: "v0.1",
+      version: "v0.2",
     };
+    // 마이그레이션이 덜 된 DB에서도 존재하는 테이블은 전부 내보낸다 (백업은 all-or-nothing 금지)
     for (const [table, orderBy] of Object.entries(TABLES)) {
+      const exists = await pool.query<{ ok: string | null }>(
+        "select to_regclass($1)::text as ok",
+        [`public.${table}`],
+      );
+      if (!exists.rows[0].ok) continue;
       const r = await pool.query(`select * from ${table} order by ${orderBy}`);
       dump[table] = r.rows;
     }

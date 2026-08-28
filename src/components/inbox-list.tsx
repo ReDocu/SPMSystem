@@ -2,9 +2,42 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { parseCapture } from "@/lib/capture/parse";
+import { parseCapture, type CaptureGuess } from "@/lib/capture/parse";
 import { guessBadges } from "@/lib/capture/format";
 import type { InboxItem } from "@/lib/inbox/repo";
+
+type ProcessAs = "task" | "timelog" | "resource";
+
+interface ProcessAction {
+  label: string;
+  as: ProcessAs;
+}
+
+// 기본 버튼 1개 + 탈출구 (§4.3). 아이디어의 종착지는 자료수집 (자료수집-상세기획 R3)
+function processActions(guess: CaptureGuess): ProcessAction[] {
+  if (guess.type === "resource") {
+    return [
+      { label: "◈ 자료로", as: "resource" },
+      { label: "할 일로", as: "task" },
+    ];
+  }
+  if (guess.type === "idea" || guess.type === "snippet") {
+    return [
+      { label: "아이디어로", as: "resource" },
+      { label: "할 일로", as: "task" },
+    ];
+  }
+  if (guess.timeRange) {
+    return [
+      { label: "⏱ 타임로그로", as: "timelog" },
+      { label: "할 일로", as: "task" },
+    ];
+  }
+  return [
+    { label: "✓ 할 일로", as: "task" },
+    { label: "아이디어로", as: "resource" },
+  ];
+}
 
 const FADE_MS = 300; // 처리 후 0.3초 페이드 아웃 (§0.4)
 const UNDO_MS = 5000; // 삭제 5초 되돌리기 (§0.4)
@@ -36,7 +69,7 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
   }, []);
 
   const handleProcess = useCallback(
-    async (id: string, as: "task" | "timelog") => {
+    async (id: string, as: ProcessAs) => {
       setError(null);
       const res = await fetch(`/api/inbox/${id}/process`, {
         method: "POST",
@@ -174,24 +207,19 @@ export function InboxList({ initialItems }: { initialItems: InboxItem[] }) {
                     </span>
                   ))}
                   <span className="flex-1" />
-                  {guess.timeRange && (
+                  {processActions(guess).map((action, i) => (
                     <button
-                      onClick={() => handleProcess(item.id, "timelog")}
-                      className="rounded-md border border-ink px-2.5 py-1 text-xs font-medium hover:bg-surface-2"
+                      key={action.as}
+                      onClick={() => handleProcess(item.id, action.as)}
+                      className={`rounded-md border px-2.5 py-1 text-xs ${
+                        i === 0
+                          ? "border-ink font-medium hover:bg-surface-2"
+                          : "border-line text-muted hover:text-ink"
+                      }`}
                     >
-                      ⏱ 타임로그로
+                      {action.label}
                     </button>
-                  )}
-                  <button
-                    onClick={() => handleProcess(item.id, "task")}
-                    className={`rounded-md border px-2.5 py-1 text-xs ${
-                      guess.timeRange
-                        ? "border-line text-muted hover:text-ink"
-                        : "border-ink font-medium hover:bg-surface-2"
-                    }`}
-                  >
-                    ✓ 할 일로
-                  </button>
+                  ))}
                   <button
                     onClick={() => handleDelete(item.id)}
                     className="rounded-md border border-line px-2.5 py-1 text-xs text-muted hover:text-ink"
